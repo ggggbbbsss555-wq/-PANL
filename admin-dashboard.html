@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Dashboard</title>
+<style>
+  /* ===================== RESET & BASE ===================== */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: #ffffff;
+    color: #000000;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  button { font-family: inherit; cursor: pointer; border: none; outline: none; background: none; }
+  input, select, textarea { font-family: inherit; outline: none; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: #fafafa; }
+  ::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #a3a3a3; }
+
+  /* ===================== ICONS ===================== */
+  .icon {
+    width: 18px; height: 18px;
+    stroke: currentColor; fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round; stroke-linejoin: round;
+    flex-shrink: 0;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .icon.lg { width: 22px; height: 22px; }
+  .icon.sm { width: 14px; height: 14px; }
+  .icon.xl { width: 28px; height: 28px; }
+
+  /* ===================== LAYOUT ===================== */
+  .app {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 100vh;
+  }
+  .sidebar {
+    background: #000000;
+    color: #ffffff;
+    padding: 1.75rem 1rem;
+    display: flex; flex-direction: column;
+    position: sticky; top: 0; height: 100vh;
+    border-right: 1px solid #1a1a1a;
+  }
+  .brand {
+    display: flex; align-items: center; gap: .75rem;
+    padding-bottom: 1.5rem; margin-bottom: 1.25rem;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .brand-logo {
+    width: 38px; height: 38px; border-radius: 8px;
+    background: #ffffff; color: #000000;
+    display: grid; place-items: center;
+    font-weight: 700; font-size: 1rem;
+    letter-spacing: -0.5px;
+  }
+  .brand-text { display: flex; flex-direction: column; }
+  .brand-text strong { font-size: .95rem; font-weight: 600; }
+  .brand-text small { color: #737373; font-size: .72rem; }
+
+  .nav { display: flex; flex-direction: column; gap: .15rem; flex: 1; }
+  .nav-item {
+    display: flex; align-items: center; gap: .75rem;
+    padding: .65rem .85rem;
+    color: #a3a3a3;
+    border-radius: 6px;
+    text-align: left;
+    transition: all .15s ease;
+    font-size: .85rem;
+    font-weight: 500;
+    width: 100%;
+  }
+  .nav-item:hover { background: #1a1a1a; color: #ffffff; }
+  .nav-item.active {
+    background: #ffffff; color: #000000;
+    font-weight: 600;
+  }
+  .nav-item .icon { color: inherit; }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding-top: 1.25rem;
+    border-top: 1px solid #1a1a1a;
+    display: flex; align-items: center; gap: .65rem;
+    font-size: .8rem;
+  }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #262626;
+    display: grid; place-items: center;
+    color: #fff; font-weight: 600;
+    font-size: .8rem;
+  }
+  .sidebar-footer .info-name { color: #e5e5e5; font-weight: 600; font-size: .82rem; }
+  .sidebar-footer .info-role { color: #737373; font-size: .72rem; }
+
+  /* Main */
+  .main {
+    padding: 2rem 2.5rem;
+    overflow-y: auto;
+    max-height: 100vh;
+    background: #ffffff;
+  }
+  .page-header { margin-bottom: 1.75rem; }
+  .page-header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: .25rem; letter-spacing: -0.02em; }
+  .page-header p { color: #737373; font-size: .88rem; }
+
+  /* ===================== COMPONENTS ===================== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+  .stat-card {
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    padding: 1.25rem;
+    transition: all .2s ease;
+    position: relative;
+  }
+  .stat-card:hover {
+    border-color: #000000;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,.06);
+  }
+  .stat-icon {
+    width: 38px; height: 38px; border-radius: 8px;
+    background: #f5f5f5; color: #000000;
+    display: grid; place-items: center;
+    margin-bottom: 1rem;
+  }
+  .stat-label { color: #737373; font-size: .78rem; margin-bottom: .25rem; text-transform: uppercase; letter-spacing: .04em; font-weight: 500; }
+  .stat-value { font-size: 1.85rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; }
+  .stat-meta { color: #a3a3a3; font-size: .72rem; margin-top: .35rem; }
+
+  /* Panels */
+  .panel {
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .panel-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.25rem;
+    gap: 1rem; flex-wrap: wrap;
+  }
+  .panel-header h2 { font-size: 1rem; font-weight: 600; }
+  .panel-header p { color: #737373; font-size: .8rem; margin-top: .15rem; }
+
+  /* Search */
+  .search-bar {
+    display: flex; gap: .5rem; align-items: center;
+    background: #fafafa;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: .25rem .25rem .25rem .85rem;
+    min-width: 320px;
+    transition: border-color .15s ease;
+  }
+  .search-bar:focus-within { border-color: #000000; }
+  .search-bar input {
+    background: transparent; border: none; color: #000000;
+    flex: 1; font-size: .85rem; padding: .45rem 0;
+  }
+  .search-bar input::placeholder { color: #a3a3a3; }
+  .search-bar .icon { color: #737373; }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; max-height: 540px; overflow-y: auto; border-radius: 8px; border: 1px solid #e5e5e5; }
+  table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  thead th {
+    text-align: left; padding: .75rem 1rem;
+    font-size: .72rem; font-weight: 600;
+    color: #525252; text-transform: uppercase;
+    letter-spacing: .04em;
+    background: #fafafa;
+    position: sticky; top: 0; z-index: 1;
+    border-bottom: 1px solid #e5e5e5;
+  }
+  tbody td {
+    padding: .8rem 1rem;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: .85rem;
+    vertical-align: middle;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr { transition: background .1s ease; }
+  tbody tr:hover { background: #fafafa; }
+  .user-cell { display: flex; align-items: center; gap: .65rem; }
+  .user-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #000000; color: #ffffff;
+    display: grid; place-items: center;
+    font-weight: 600; font-size: .75rem;
+    flex-shrink: 0;
+  }
+  .user-name { font-weight: 600; color: #000; }
+  .user-email { color: #737373; font-size: .72rem; }
+  .id-code { color: #525252; font-size: .75rem; font-family: 'SF Mono', 'Consolas', monospace; background: #f5f5f5; padding: .15rem .4rem; border-radius: 4px; }
+
+  /* Badges */
+  .badge {
+    display: inline-flex; align-items: center; gap: .3rem;
+    padding: .15rem .55rem; border-radius: 4px;
+    font-size: .68rem; font-weight: 600;
+    border: 1px solid;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .badge.active { color: #000; background: #fff; border-color: #000; }
+  .badge.banned { color: #000; background: #000; }
+  .badge.banned .badge-text { color: #fff; }
+  .badge.premium { color: #000; background: #f5f5f5; border-color: #000; border-style: dashed; }
+  .badge.user { color: #525252; background: transparent; border-color: #d4d4d4; }
+  .badge.admin { color: #fff; background: #000; border-color: #000; }
+  .badge .icon { width: 11px; height: 11px; }
+
+  /* Action buttons */
+  .actions { display: flex; gap: .25rem; flex-wrap: wrap; }
+  .btn {
+    padding: .4rem .65rem; border-radius: 6px;
+    font-size: .75rem; font-weight: 600;
+    transition: all .12s ease;
+    display: inline-flex; align-items: center; gap: .35rem;
+    border: 1px solid;
+  }
+  .btn:disabled { opacity: .35; cursor: not-allowed; }
+  .btn .icon { width: 13px; height: 13px; }
+  .btn-ban { color: #000; background: #fff; border-color: #000; }
+  .btn-ban:hover:not(:disabled) { background: #000; color: #fff; }
+  .btn-unban { color: #000; background: #fff; border-color: #d4d4d4; }
+  .btn-unban:hover:not(:disabled) { border-color: #000; }
+  .btn-promote { color: #000; background: #fff; border-color: #000; border-style: dashed; }
+  .btn-promote:hover:not(:disabled) { border-style: solid; background: #000; color: #fff; }
+  .btn-demote { color: #525252; background: #fafafa; border-color: #e5e5e5; }
+  .btn-demote:hover:not(:disabled) { border-color: #000; color: #000; }
+  .btn-view { color: #000; background: #fafafa; border-color: #e5e5e5; }
+  .btn-view:hover:not(:disabled) { border-color: #000; }
+
+  .btn-primary {
+    background: #000000; color: #ffffff;
+    font-weight: 600;
+    padding: .55rem 1.1rem; border-radius: 6px;
+    display: inline-flex; align-items: center; gap: .45rem;
+    transition: all .12s ease;
+    font-size: .85rem;
+    border: 1px solid #000;
+  }
+  .btn-primary:hover { background: #262626; }
+  .btn-primary .icon { width: 15px; height: 15px; }
+  .btn-outline {
+    background: #fff; color: #000;
+    border: 1px solid #000;
+    padding: .55rem 1.1rem; border-radius: 6px;
+    font-size: .85rem; font-weight: 600;
+    display: inline-flex; align-items: center; gap: .45rem;
+    transition: all .12s ease;
+  }
+  .btn-outline:hover { background: #000; color: #fff; }
+  .btn-ghost {
+    color: #525252;
+    padding: .4rem .65rem; border-radius: 6px; font-size: .75rem; font-weight: 600;
+    border: 1px solid #e5e5e5;
+    display: inline-flex; align-items: center; gap: .35rem;
+    transition: all .12s ease;
+  }
+  .btn-ghost:hover { color: #000; border-color: #000; }
+  .btn-ghost .icon { width: 13px; height: 13px; }
+
+  /* Forms */
+  .form-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  .field { display: flex; flex-direction: column; gap: .35rem; }
+  .field label { font-size: .78rem; color: #000; font-weight: 600; }
+  .field input, .field select, .field textarea {
+    background: #fff; border: 1px solid #d4d4d4;
+    color: #000; padding: .6rem .8rem; border-radius: 6px;
+    font-size: .85rem; transition: border-color .15s ease;
+    width: 100%;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: #000;
+  }
+  .field input:disabled { background: #fafafa; color: #737373; }
+  .field textarea { resize: vertical; min-height: 90px; font-family: inherit; }
+  .field small { color: #737373; font-size: .7rem; }
+  .field input::placeholder { color: #a3a3a3; }
+
+  .radio-group { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .radio-card {
+    flex: 1; min-width: 140px;
+    background: #fff; border: 1px solid #d4d4d4;
+    border-radius: 8px; padding: .75rem .9rem;
+    cursor: pointer; transition: all .15s ease;
+    display: flex; align-items: center; gap: .5rem;
+    font-size: .82rem;
+  }
+  .radio-card input { accent-color: #000; }
+  .radio-card:hover { border-color: #000; }
+  .radio-card.checked {
+    border-color: #000; background: #000; color: #fff;
+  }
+  .radio-card .icon { color: inherit; }
+
+  /* Toast */
+  .toast-container {
+    position: fixed; top: 1rem; right: 1rem;
+    display: flex; flex-direction: column; gap: .5rem;
+    z-index: 1000;
+  }
+  .toast {
+    background: #000; color: #fff;
+    padding: .75rem 1rem;
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.18);
+    display: flex; align-items: center; gap: .55rem;
+    animation: slideIn .2s ease;
+    min-width: 280px;
+    font-size: .82rem; font-weight: 500;
+  }
+  .toast.success { background: #000; }
+  .toast.error { background: #000; color: #fff; border: 1px solid #fff; }
+  .toast.info { background: #262626; }
+  .toast .icon { width: 16px; height: 16px; color: #fff; }
+  @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* Tab content */
+  .tab-content { display: none; animation: fadeIn .2s ease; }
+  .tab-content.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Empty state */
+  .empty {
+    text-align: center; padding: 2rem 1rem;
+    color: #a3a3a3; font-size: .85rem;
+  }
+  .empty .icon { color: #d4d4d4; margin-bottom: .5rem; }
+
+  /* History list */
+  .history-list { display: flex; flex-direction: column; gap: .5rem; max-height: 380px; overflow-y: auto; }
+  .history-item {
+    background: #fafafa; border: 1px solid #f5f5f5;
+    padding: .8rem .95rem; border-radius: 8px;
+    display: flex; gap: .75rem; align-items: flex-start;
+    transition: border-color .15s ease;
+  }
+  .history-item:hover { border-color: #d4d4d4; }
+  .history-icon {
+    width: 32px; height: 32px; border-radius: 6px;
+    display: grid; place-items: center;
+    background: #000; color: #fff;
+    flex-shrink: 0;
+  }
+  .history-icon .icon { width: 16px; height: 16px; }
+  .history-title { font-weight: 600; font-size: .85rem; margin-bottom: .15rem; }
+  .history-body { color: #525252; font-size: .78rem; }
+  .history-meta { color: #a3a3a3; font-size: .7rem; margin-top: .25rem; }
+
+  /* Promo cards */
+  .promo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+  .promo-card {
+    background: #fff; border: 1px solid #e5e5e5;
+    border-radius: 10px; padding: 1.1rem;
+    position: relative; overflow: hidden;
+    transition: border-color .15s ease;
+  }
+  .promo-card:hover { border-color: #000; }
+  .promo-code {
+    font-family: 'SF Mono', 'Consolas', 'Courier New', monospace;
+    font-size: 1.3rem; font-weight: 700; color: #000;
+    letter-spacing: 2px; margin-bottom: .3rem;
+  }
+  .promo-meta { color: #737373; font-size: .78rem; margin-bottom: .85rem; }
+  .promo-progress {
+    height: 4px; background: #f5f5f5; border-radius: 999px; overflow: hidden;
+    margin-bottom: .35rem;
+  }
+  .promo-progress-bar { height: 100%; background: #000; transition: width .3s ease; }
+  .promo-stats { display: flex; justify-content: space-between; font-size: .72rem; color: #525252; }
+
+  /* Code preview */
+  .code-preview {
+    background: #000; color: #fff;
+    padding: 1rem 1.25rem; border-radius: 8px;
+    font-family: 'SF Mono', 'Consolas', 'Courier New', monospace;
+    font-size: 1.4rem; font-weight: 700;
+    letter-spacing: 3px; text-align: center;
+    margin: .5rem 0 1.25rem;
+  }
+
+  /* User detail */
+  .user-info {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem; padding: 1rem;
+    background: #fafafa; border: 1px solid #e5e5e5; border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+  .info-item label { color: #737373; font-size: .68rem; text-transform: uppercase; letter-spacing: .04em; font-weight: 600; display: block; margin-bottom: .15rem; }
+  .info-item strong { color: #000; font-size: .88rem; font-weight: 600; display: block; }
+
+  /* Subheader bar */
+  .subheader {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #fafafa; padding: .75rem 1rem;
+    border-radius: 8px; margin-bottom: 1rem;
+    border: 1px solid #e5e5e5;
+  }
+  .subheader h2 { font-size: .9rem; font-weight: 600; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: relative; height: auto; flex-direction: row; flex-wrap: wrap; padding: 1rem; }
+    .brand { padding-bottom: 0; margin-bottom: 0; border-bottom: none; }
+    .nav { flex-direction: row; flex-wrap: wrap; flex: 1; }
+    .nav-item { font-size: .78rem; padding: .5rem .75rem; }
+    .sidebar-footer { display: none; }
+    .main { padding: 1.25rem; max-height: none; }
+    .search-bar { min-width: 200px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">AD</div>
+      <div class="brand-text">
+        <strong>Admin Panel</strong>
+        <small>Control Center</small>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-tab="dashboard">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" data-tab="users">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Users
+      </button>
+      <button class="nav-item" data-tab="notifications">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
+      </button>
+      <button class="nav-item" data-tab="promo">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12v4h2a2 2 0 0 0 0-4h-2z"/></svg>
+        Promo Codes
+      </button>
+      <button class="nav-item" data-tab="settings">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="avatar">M</div>
+      <div>
+        <div class="info-name" id="adminEmail">admin@dashboard.io</div>
+        <div class="info-role">Administrator</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <!-- ==================== DASHBOARD ==================== -->
+    <section class="tab-content active" id="tab-dashboard">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <p>Overview of platform status, users, and promotional codes</p>
+      </div>
+
+      <div class="stats-grid" id="statsGrid"></div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Recent Notifications</h2>
+            <p>Last 5 notifications sent to users</p>
+          </div>
+        </div>
+        <div class="history-list" id="recentNotifications"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Active Promo Codes</h2>
+            <p>Codes still within activation limits</p>
+          </div>
+          <button class="btn-primary" onclick="goTo('promo')">
+            <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Code
+          </button>
+        </div>
+        <div class="promo-grid" id="activePromos"></div>
+      </div>
+    </section>
+
+    <!-- ==================== USERS ==================== -->
+    <section class="tab-content" id="tab-users">
+      <div class="page-header">
+        <h1>User Management</h1>
+        <p>Search by ID, name, or email — then ban, unban, promote, or demote</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>All Users</h2>
+            <p>Total: <strong id="usersTotal">0</strong> users</p>
+          </div>
+          <div class="search-bar">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="userSearch" placeholder="Search by ID, name, or email..." />
+            <button class="btn-primary" style="padding:.4rem .85rem;font-size:.78rem" onclick="searchUsers()">Search</button>
+          </div>
+        </div>
+
+        <div id="userDetail" style="display:none">
+          <div class="subheader">
+            <h2>Selected User Details</h2>
+            <button class="btn-ghost" onclick="clearSelectedUser()">
+              <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Close
+            </button>
+          </div>
+          <div class="user-info" id="userInfoGrid"></div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>ID</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Phone</th>
+                <th>Country</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== NOTIFICATIONS ==================== -->
+    <section class="tab-content" id="tab-notifications">
+      <div class="page-header">
+        <h1>Send Notifications</h1>
+        <p>Send to a specific user by ID, to premium members, or to all users</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Create New Notification</h2>
+            <p>Will be stored in the recipients' history</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="field" style="grid-column: 1 / -1">
+            <label>Notification Title</label>
+            <input type="text" id="notifTitle" placeholder="e.g. Special offer for you..." maxlength="80" />
+          </div>
+
+          <div class="field" style="grid-column: 1 / -1">
+            <label>Message Body</label>
+            <textarea id="notifBody" placeholder="Write your notification message here..."></textarea>
+          </div>
+
+          <div class="field" style="grid-column: 1 / -1">
+            <label>Target Audience</label>
+            <div class="radio-group" id="notifAudience">
+              <label class="radio-card checked">
+                <input type="radio" name="audience" value="USER_ID" checked />
+                <svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Specific User</span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="audience" value="PREMIUM" />
+                <svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>Premium Members</span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="audience" value="ALL" />
+                <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span>All Users</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field" id="targetIdField">
+            <label>User ID</label>
+            <input type="text" id="notifTargetId" placeholder="Enter user ID" />
+            <small>You can copy the ID from the Users section</small>
+          </div>
+        </div>
+
+        <div style="margin-top:1.25rem;display:flex;gap:.5rem">
+          <button class="btn-primary" onclick="sendNotification()">
+            <svg class="icon" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Send Notification
+          </button>
+          <button class="btn-outline" onclick="clearNotifForm()">Cancel</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Notification History</h2>
+            <p>Recent sent notifications</p>
+          </div>
+        </div>
+        <div class="history-list" id="notifHistory"></div>
+      </div>
+    </section>
+
+    <!-- ==================== PROMO ==================== -->
+    <section class="tab-content" id="tab-promo">
+      <div class="page-header">
+        <h1>Promo Codes</h1>
+        <p>Create a short code (5-6 characters), target a specific user group, and limit activations</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Create Promo Code</h2>
+            <p>Choose audience, write the code, and set max activations</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label>Promo Code (5-6 chars)</label>
+            <input type="text" id="promoCode" placeholder="WELCOME" maxlength="6"
+              oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" />
+            <small>Uppercase letters and digits only</small>
+          </div>
+
+          <div class="field">
+            <label>Target Audience</label>
+            <select id="promoAudience">
+              <option value="ALL">All Users</option>
+              <option value="PREMIUM">Premium Members</option>
+              <option value="NEW">New Users</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Max Activations</label>
+            <input type="number" id="promoMax" min="1" max="999" placeholder="e.g. 60" />
+            <small>Between 1 and 999</small>
+          </div>
+
+          <div class="field">
+            <label>Discount %</label>
+            <input type="number" id="promoDiscount" min="1" max="99" placeholder="10" />
+            <small>Default: 10%</small>
+          </div>
+        </div>
+
+        <div class="code-preview" id="codePreview">______</div>
+
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+          <button class="btn-primary" onclick="createPromo()">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12v4h2a2 2 0 0 0 0-4h-2z"/></svg>
+            Create Code
+          </button>
+          <button class="btn-outline" onclick="randomCode()">
+            <svg class="icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Generate Random
+          </button>
+          <button class="btn-ghost" onclick="clearPromoForm()">Clear</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Existing Promo Codes</h2>
+            <p>All created codes</p>
+          </div>
+        </div>
+        <div class="promo-grid" id="promosGrid"></div>
+      </div>
+    </section>
+
+    <!-- ==================== SETTINGS ==================== -->
+    <section class="tab-content" id="tab-settings">
+      <div class="page-header">
+        <h1>Settings</h1>
+        <p>Update your admin email and password</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Change Email</h2>
+            <p>The new email will be used for the next login</p>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Current Email</label>
+            <input type="email" id="currentEmail" disabled />
+          </div>
+          <div class="field">
+            <label>New Email</label>
+            <input type="email" id="newEmail" placeholder="admin@new-domain.io" />
+          </div>
+        </div>
+        <div style="margin-top:1.25rem">
+          <button class="btn-primary" onclick="updateEmail()">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save Email
+          </button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Change Password</h2>
+            <p>Choose a strong password of at least 8 characters</p>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Current Password</label>
+            <input type="password" id="currentPass" placeholder="••••••••" />
+          </div>
+          <div class="field">
+            <label>New Password</label>
+            <input type="password" id="newPass" placeholder="••••••••" />
+          </div>
+          <div class="field">
+            <label>Confirm Password</label>
+            <input type="password" id="confirmPass" placeholder="••••••••" />
+          </div>
+        </div>
+        <div style="margin-top:1.25rem">
+          <button class="btn-primary" onclick="updatePassword()">
+            <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Update Password
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ============================================================
+ *  DATA LAYER (localStorage)
+ * ============================================================ */
+const STORAGE_KEYS = {
+  USERS: 'ad_users',
+  NOTIFS: 'ad_notifications',
+  PROMOS: 'ad_promos',
+  SETTINGS: 'ad_settings',
+};
+
+const SAMPLE_NAMES = [
+  'James', 'Sarah', 'Michael', 'Emma', 'John', 'Olivia', 'David', 'Sophia',
+  'Robert', 'Isabella', 'William', 'Ava', 'Joseph', 'Mia', 'Daniel', 'Charlotte',
+  'Matthew', 'Amelia', 'Andrew', 'Harper', 'Christopher', 'Evelyn', 'Thomas', 'Abigail',
+];
+const COUNTRIES = ['USA', 'UK', 'Germany', 'France', 'Canada', 'Australia', 'Spain', 'Italy'];
+
+function uid() {
+  return 'usr_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+}
+
+function randomPhone() {
+  return '+1' + Math.floor(2000000000 + Math.random() * 7999999999).toString().slice(1);
+}
+
+function loadData() {
+  let users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+  if (users.length === 0) {
+    users = [];
+    for (let i = 0; i < 24; i++) {
+      users.push({
+        id: uid(),
+        email: `user${i + 1}@dashboard.io`,
+        name: SAMPLE_NAMES[i] ?? `User${i + 1}`,
+        role: i < 6 ? 'PREMIUM' : i === 23 ? 'ADMIN' : 'USER',
+        status: i % 9 === 0 ? 'BANNED' : 'ACTIVE',
+        phone: randomPhone(),
+        country: COUNTRIES[i % COUNTRIES.length],
+        joinedAt: new Date(Date.now() - (i + 1) * 86400000 * Math.floor(1 + Math.random() * 5)).toISOString(),
+      });
+    }
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+  }
+
+  let notifs = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFS) || '[]');
+  if (notifs.length === 0) {
+    notifs = [
+      {
+        id: 'n1', title: 'Welcome to the platform',
+        body: 'Welcome to the admin dashboard. Thank you for joining us.',
+        channel: 'USER_ID', target: users[0]?.id || '—',
+        sentAt: new Date(Date.now() - 3600000).toISOString(), sentCount: 1,
+      },
+      {
+        id: 'n2', title: 'Special offer for premium members',
+        body: 'An exclusive offer has been activated for all premium members for 7 days.',
+        channel: 'PREMIUM', target: null,
+        sentAt: new Date(Date.now() - 7200000).toISOString(), sentCount: 6,
+      },
+      {
+        id: 'n3', title: 'New system update',
+        body: 'Version 2.0 of the platform has been released with many improvements.',
+        channel: 'ALL', target: null,
+        sentAt: new Date(Date.now() - 86400000).toISOString(), sentCount: 24,
+      },
+    ];
+    localStorage.setItem(STORAGE_KEYS.NOTIFS, JSON.stringify(notifs));
+  }
+
+  let promos = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROMOS) || '[]');
+  if (promos.length === 0) {
+    promos = [
+      { id: 'p1', code: 'WELCOME', audience: 'ALL', maxUsers: 60, activated: 12, discountPct: 15, createdAt: new Date(Date.now() - 86400000).toISOString() },
+      { id: 'p2', code: 'VIP2024', audience: 'PREMIUM', maxUsers: 30, activated: 5, discountPct: 25, createdAt: new Date(Date.now() - 43200000).toISOString() },
+      { id: 'p3', code: 'NEW50',  audience: 'NEW',   maxUsers: 50, activated: 0,  discountPct: 10, createdAt: new Date(Date.now() - 7200000).toISOString() },
+    ];
+    localStorage.setItem(STORAGE_KEYS.PROMOS, JSON.stringify(promos));
+  }
+
+  let settings = JSON.parse(localStorage.getItem(STORAGE_KEYS.SETTINGS) || 'null');
+  if (!settings) {
+    settings = { email: 'admin@dashboard.io', password: 'Admin@2024' };
+    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+  }
+
+  return { users, notifs, promos, settings };
+}
+
+function saveUsers(users) { localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users)); }
+function saveNotifs(notifs) { localStorage.setItem(STORAGE_KEYS.NOTIFS, JSON.stringify(notifs)); }
+function savePromos(promos) { localStorage.setItem(STORAGE_KEYS.PROMOS, JSON.stringify(promos)); }
+function saveSettings(s) { localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(s)); }
+
+let state = loadData();
+let selectedUserId = null;
+
+/* ============================================================
+ *  ICON SVGs (reusable)
+ * ============================================================ */
+const ICONS = {
+  ban:    '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>',
+  unban:  '<svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+  promote:'<svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  demote: '<svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>',
+  view:   '<svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+  trash:  '<svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+  check:  '<svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
+  x:      '<svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  info:   '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+  bell:   '<svg class="icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
+  users:  '<svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',
+  star:   '<svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  shield: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+  activity:'<svg class="icon" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+  tag:    '<svg class="icon" viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12v4h2a2 2 0 0 0 0-4h-2z"/></svg>',
+  bell2:  '<svg class="icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>',
+};
+
+/* ============================================================
+ *  TABS
+ * ============================================================ */
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => goTo(btn.dataset.tab));
+});
+function goTo(tab) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.tab-content').forEach(s => s.classList.toggle('active', s.id === 'tab-' + tab));
+  if (tab === 'dashboard') renderDashboard();
+  if (tab === 'users') renderUsers();
+  if (tab === 'notifications') renderNotifHistory();
+  if (tab === 'promo') renderPromos();
+  if (tab === 'settings') renderSettings();
+}
+
+/* ============================================================
+ *  TOAST
+ * ============================================================ */
+function toast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const iconKey = type === 'success' ? 'check' : type === 'error' ? 'x' : 'info';
+  el.innerHTML = (ICONS[iconKey] || ICONS.info) + '<span>' + msg + '</span>';
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, 2800);
+}
+
+/* ============================================================
+ *  HELPERS
+ * ============================================================ */
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function formatDateTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString('en-US', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+function roleBadge(role) {
+  const labels = { PREMIUM: 'Premium', USER: 'User', ADMIN: 'Admin' };
+  const cls = role.toLowerCase();
+  return `<span class="badge ${cls}">${ICONS[cls === 'premium' ? 'star' : cls === 'admin' ? 'shield' : 'users']}<span>${labels[role] || role}</span></span>`;
+}
+function statusBadge(status) {
+  if (status === 'BANNED') return `<span class="badge banned">${ICONS.ban}<span class="badge-text">Banned</span></span>`;
+  return `<span class="badge active">${ICONS.check}<span>Active</span></span>`;
+}
+function initials(name) {
+  return (name || '?').trim().slice(0, 1).toUpperCase();
+}
+
+/* ============================================================
+ *  DASHBOARD
+ * ============================================================ */
+function renderDashboard() {
+  const total = state.users.length;
+  const banned = state.users.filter(u => u.status === 'BANNED').length;
+  const premium = state.users.filter(u => u.role === 'PREMIUM').length;
+  const active = state.users.filter(u => u.status === 'ACTIVE').length;
+  const notifs = state.notifs.length;
+  const promos = state.promos.length;
+  const promoActive = state.promos.filter(p => p.activated < p.maxUsers).length;
+  const now = Date.now();
+  const sevenDaysAgo = now - 7 * 86400000;
+  const newUsers = state.users.filter(u => new Date(u.joinedAt).getTime() >= sevenDaysAgo).length;
+
+  const cards = [
+    { label: 'Total Users', value: total, icon: ICONS.users, meta: `+${newUsers} in last 7 days` },
+    { label: 'Premium Members', value: premium, icon: ICONS.star, meta: `${((premium / total) * 100 || 0).toFixed(0)}% of total` },
+    { label: 'Active Users', value: active, icon: ICONS.check, meta: 'Eligible to use platform' },
+    { label: 'Banned Users', value: banned, icon: ICONS.ban, meta: 'Suspended accounts' },
+    { label: 'Notifications Sent', value: notifs, icon: ICONS.bell, meta: 'Total campaigns' },
+    { label: 'Promo Codes', value: promos, icon: ICONS.tag, meta: `${promoActive} still active` },
+  ];
+
+  document.getElementById('statsGrid').innerHTML = cards.map(c => `
+    <div class="stat-card">
+      <div class="stat-icon">${c.icon.replace('class="icon"','class="icon lg"')}</div>
+      <div class="stat-label">${c.label}</div>
+      <div class="stat-value">${c.value}</div>
+      <div class="stat-meta">${c.meta}</div>
+    </div>
+  `).join('');
+
+  const recent = [...state.notifs].sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt)).slice(0, 5);
+  document.getElementById('recentNotifications').innerHTML = recent.length === 0
+    ? `<div class="empty">${ICONS.bell2}<div>No notifications yet</div></div>`
+    : recent.map(n => {
+        const aud = n.channel === 'USER_ID' ? 'Specific user' : n.channel === 'PREMIUM' ? 'Premium members' : 'All users';
+        return `
+          <div class="history-item">
+            <div class="history-icon">${ICONS.bell}</div>
+            <div style="flex:1">
+              <div class="history-title">${n.title}</div>
+              <div class="history-body">${n.body}</div>
+              <div class="history-meta">${aud} · Sent to ${n.sentCount} users · ${formatDateTime(n.sentAt)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+  const activeP = state.promos.filter(p => p.activated < p.maxUsers);
+  document.getElementById('activePromos').innerHTML = activeP.length === 0
+    ? `<div class="empty" style="grid-column:1/-1">${ICONS.tag}<div>No active codes</div></div>`
+    : activeP.map(p => promoCardHTML(p)).join('');
+}
+
+/* ============================================================
+ *  USERS
+ * ============================================================ */
+function renderUsers(filteredList) {
+  const list = filteredList || state.users;
+  document.getElementById('usersTotal').textContent = list.length;
+
+  const body = document.getElementById('usersBody');
+  if (list.length === 0) {
+    body.innerHTML = `<tr><td colspan="8"><div class="empty">${ICONS.users}<div>No matching users</div></div></td></tr>`;
+    return;
+  }
+
+  body.innerHTML = list.map(u => {
+    const isBanned = u.status === 'BANNED';
+    const isPremium = u.role === 'PREMIUM';
+    const isAdmin = u.role === 'ADMIN';
+    return `
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar">${initials(u.name)}</div>
+            <div>
+              <div class="user-name">${u.name}</div>
+              <div class="user-email">${u.email}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="id-code">${u.id}</span></td>
+        <td>${roleBadge(u.role)}</td>
+        <td>${statusBadge(u.status)}</td>
+        <td>${u.phone || '—'}</td>
+        <td>${u.country || '—'}</td>
+        <td>${formatDate(u.joinedAt)}</td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-ban" ${isBanned || isAdmin ? 'disabled' : ''} onclick="banUser('${u.id}')" title="Ban">${ICONS.ban}Ban</button>
+            <button class="btn btn-unban" ${!isBanned ? 'disabled' : ''} onclick="unbanUser('${u.id}')" title="Unban">${ICONS.unban}Unban</button>
+            <button class="btn btn-promote" ${isPremium || isAdmin ? 'disabled' : ''} onclick="promoteUser('${u.id}')" title="Promote">${ICONS.promote}Promote</button>
+            <button class="btn btn-demote" ${!isPremium || isAdmin ? 'disabled' : ''} onclick="demoteUser('${u.id}')" title="Demote">${ICONS.demote}Demote</button>
+            <button class="btn btn-view" onclick="selectUser('${u.id}')" title="View">${ICONS.view}View</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function searchUsers() {
+  const q = document.getElementById('userSearch').value.trim().toLowerCase();
+  if (!q) {
+    renderUsers();
+    return;
+  }
+  const found = state.users.filter(u =>
+    u.id.toLowerCase() === q ||
+    u.id.toLowerCase().includes(q) ||
+    u.name.toLowerCase().includes(q) ||
+    u.email.toLowerCase().includes(q) ||
+    (u.phone || '').includes(q)
+  );
+  if (found.length === 0) toast('No matching user found', 'error');
+  else toast(`Found ${found.length} matching user${found.length === 1 ? '' : 's'}`, 'success');
+  renderUsers(found);
+}
+
+document.getElementById('userSearch').addEventListener('input', function() {
+  if (this.value === '') renderUsers();
+});
+
+function banUser(id) {
+  const u = state.users.find(x => x.id === id);
+  if (!u) return;
+  u.status = 'BANNED';
+  saveUsers(state.users);
+  toast(`User ${u.name} has been banned`, 'success');
+  renderUsers();
+}
+function unbanUser(id) {
+  const u = state.users.find(x => x.id === id);
+  if (!u) return;
+  u.status = 'ACTIVE';
+  saveUsers(state.users);
+  toast(`Ban lifted for ${u.name}`, 'success');
+  renderUsers();
+}
+function promoteUser(id) {
+  const u = state.users.find(x => x.id === id);
+  if (!u) return;
+  u.role = 'PREMIUM';
+  saveUsers(state.users);
+  toast(`${u.name} promoted to Premium member`, 'success');
+  renderUsers();
+}
+function demoteUser(id) {
+  const u = state.users.find(x => x.id === id);
+  if (!u) return;
+  u.role = 'USER';
+  saveUsers(state.users);
+  toast(`Premium removed from ${u.name}`, 'success');
+  renderUsers();
+}
+
+function selectUser(id) {
+  const u = state.users.find(x => x.id === id);
+  if (!u) return;
+  selectedUserId = id;
+  document.getElementById('userDetail').style.display = 'block';
+  document.getElementById('userInfoGrid').innerHTML = `
+    <div class="info-item"><label>ID</label><strong><span class="id-code">${u.id}</span></strong></div>
+    <div class="info-item"><label>Full Name</label><strong>${u.name}</strong></div>
+    <div class="info-item"><label>Email</label><strong>${u.email}</strong></div>
+    <div class="info-item"><label>Phone</label><strong>${u.phone || '—'}</strong></div>
+    <div class="info-item"><label>Country</label><strong>${u.country || '—'}</strong></div>
+    <div class="info-item"><label>Role</label><strong>${roleBadge(u.role)}</strong></div>
+    <div class="info-item"><label>Status</label><strong>${statusBadge(u.status)}</strong></div>
+    <div class="info-item"><label>Joined</label><strong>${formatDate(u.joinedAt)}</strong></div>
+  `;
+  document.getElementById('userDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function clearSelectedUser() {
+  selectedUserId = null;
+  document.getElementById('userDetail').style.display = 'none';
+}
+
+/* ============================================================
+ *  NOTIFICATIONS
+ * ============================================================ */
+document.querySelectorAll('#notifAudience .radio-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('#notifAudience .radio-card').forEach(c => c.classList.remove('checked'));
+    card.classList.add('checked');
+    card.querySelector('input').checked = true;
+    const val = card.querySelector('input').value;
+    document.getElementById('targetIdField').style.display = val === 'USER_ID' ? 'flex' : 'none';
+  });
+});
+
+function sendNotification() {
+  const title = document.getElementById('notifTitle').value.trim();
+  const body = document.getElementById('notifBody').value.trim();
+  const audience = document.querySelector('input[name="audience"]:checked').value;
+  const targetId = document.getElementById('notifTargetId').value.trim();
+
+  if (!title) { toast('Please enter a notification title', 'error'); return; }
+  if (!body) { toast('Please enter a notification body', 'error'); return; }
+
+  let sentCount = 0;
+  if (audience === 'USER_ID') {
+    if (!targetId) { toast('Please enter the user ID', 'error'); return; }
+    const target = state.users.find(u => u.id === targetId);
+    if (!target) { toast('No user with this ID', 'error'); return; }
+    sentCount = 1;
+  } else if (audience === 'PREMIUM') {
+    sentCount = state.users.filter(u => u.role === 'PREMIUM' && u.status === 'ACTIVE').length;
+    if (sentCount === 0) { toast('No active premium members', 'error'); return; }
+  } else {
+    sentCount = state.users.filter(u => u.status === 'ACTIVE').length;
+    if (sentCount === 0) { toast('No active users', 'error'); return; }
+  }
+
+  const notif = {
+    id: 'n' + Date.now(),
+    title, body, channel: audience,
+    target: audience === 'USER_ID' ? targetId : null,
+    sentAt: new Date().toISOString(),
+    sentCount,
+  };
+  state.notifs.unshift(notif);
+  saveNotifs(state.notifs);
+
+  const audLabels = { USER_ID: 'specific user', PREMIUM: 'premium members', ALL: 'all users' };
+  toast(`Notification sent to ${sentCount} ${audLabels[audience]}`, 'success');
+  clearNotifForm();
+  renderNotifHistory();
+}
+
+function clearNotifForm() {
+  document.getElementById('notifTitle').value = '';
+  document.getElementById('notifBody').value = '';
+  document.getElementById('notifTargetId').value = '';
+}
+
+function renderNotifHistory() {
+  const list = [...state.notifs].sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
+  document.getElementById('notifHistory').innerHTML = list.length === 0
+    ? `<div class="empty">${ICONS.bell2}<div>No notifications yet</div></div>`
+    : list.slice(0, 20).map(n => {
+        const aud = n.channel === 'USER_ID' ? 'Specific user' : n.channel === 'PREMIUM' ? 'Premium members' : 'All users';
+        return `
+          <div class="history-item">
+            <div class="history-icon">${ICONS.bell}</div>
+            <div style="flex:1">
+              <div class="history-title">${n.title}</div>
+              <div class="history-body">${n.body}</div>
+              <div class="history-meta">${aud} · ${n.sentCount} recipients · ${formatDateTime(n.sentAt)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+}
+
+/* ============================================================
+ *  PROMO
+ * ============================================================ */
+document.getElementById('promoCode').addEventListener('input', function() {
+  const v = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  this.value = v;
+  if (v.length === 5 || v.length === 6) {
+    document.getElementById('codePreview').textContent = v;
+  } else {
+    document.getElementById('codePreview').textContent = (v + '______').slice(0, 6);
+  }
+});
+
+function randomCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  const len = 5 + Math.floor(Math.random() * 2);
+  for (let i = 0; i < len; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  document.getElementById('promoCode').value = code;
+  document.getElementById('codePreview').textContent = code;
+  toast('Random code generated', 'info');
+}
+
+function clearPromoForm() {
+  document.getElementById('promoCode').value = '';
+  document.getElementById('promoMax').value = '';
+  document.getElementById('promoDiscount').value = '';
+  document.getElementById('codePreview').textContent = '______';
+}
+
+function createPromo() {
+  const code = document.getElementById('promoCode').value.trim().toUpperCase();
+  const audience = document.getElementById('promoAudience').value;
+  const maxUsers = parseInt(document.getElementById('promoMax').value, 10);
+  const discountPct = parseInt(document.getElementById('promoDiscount').value, 10) || 10;
+
+  if (!/^[A-Z0-9]{5,6}$/.test(code)) {
+    toast('Code must be 5-6 letters/digits (A-Z, 0-9)', 'error'); return;
+  }
+  if (state.promos.some(p => p.code === code)) {
+    toast('This code already exists', 'error'); return;
+  }
+  if (!maxUsers || maxUsers < 1 || maxUsers > 999) {
+    toast('Max users must be between 1 and 999', 'error'); return;
+  }
+
+  const promo = {
+    id: 'p' + Date.now(),
+    code, audience, maxUsers, activated: 0,
+    discountPct: Math.min(99, Math.max(1, discountPct)),
+    createdAt: new Date().toISOString(),
+  };
+  state.promos.unshift(promo);
+  savePromos(state.promos);
+
+  toast(`Code ${code} created successfully`, 'success');
+  clearPromoForm();
+  renderPromos();
+}
+
+function deletePromo(id) {
+  const p = state.promos.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`Delete code ${p.code}?`)) return;
+  state.promos = state.promos.filter(x => x.id !== id);
+  savePromos(state.promos);
+  toast(`Code ${p.code} deleted`, 'info');
+  renderPromos();
+}
+
+function promoCardHTML(p) {
+  const pct = Math.min(100, Math.round((p.activated / p.maxUsers) * 100));
+  const audLabels = { ALL: 'All Users', PREMIUM: 'Premium Members', NEW: 'New Users' };
+  const isFull = p.activated >= p.maxUsers;
+  return `
+    <div class="promo-card">
+      <div class="promo-code">${p.code}</div>
+      <div class="promo-meta">${audLabels[p.audience]} · ${p.discountPct}% off</div>
+      <div class="promo-progress"><div class="promo-progress-bar" style="width:${pct}%"></div></div>
+      <div class="promo-stats">
+        <span>${p.activated} / ${p.maxUsers} activated</span>
+        <span>${isFull ? 'Complete' : pct + '%'}</span>
+      </div>
+      <div style="margin-top:.85rem;display:flex;justify-content:space-between;align-items:center">
+        <small style="color:#737373;font-size:.7rem">${formatDate(p.createdAt)}</small>
+        <button class="btn-ghost" onclick="deletePromo('${p.id}')">${ICONS.trash}Delete</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderPromos() {
+  const grid = document.getElementById('promosGrid');
+  if (state.promos.length === 0) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">${ICONS.tag}<div>No promo codes yet</div></div>`;
+    return;
+  }
+  grid.innerHTML = state.promos.map(promoCardHTML).join('');
+}
+
+/* ============================================================
+ *  SETTINGS
+ * ============================================================ */
+function renderSettings() {
+  document.getElementById('currentEmail').value = state.settings.email;
+  document.getElementById('adminEmail').textContent = state.settings.email;
+}
+
+function updateEmail() {
+  const newEmail = document.getElementById('newEmail').value.trim();
+  if (!newEmail) { toast('Please enter the new email', 'error'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) { toast('Invalid email format', 'error'); return; }
+  state.settings.email = newEmail;
+  saveSettings(state.settings);
+  document.getElementById('newEmail').value = '';
+  renderSettings();
+  toast('Email updated successfully', 'success');
+}
+
+function updatePassword() {
+  const current = document.getElementById('currentPass').value;
+  const next = document.getElementById('newPass').value;
+  const confirmP = document.getElementById('confirmPass').value;
+
+  if (!current || !next || !confirmP) { toast('Please fill in all fields', 'error'); return; }
+  if (current !== state.settings.password) { toast('Current password is incorrect', 'error'); return; }
+  if (next.length < 8) { toast('New password must be at least 8 characters', 'error'); return; }
+  if (next !== confirmP) { toast('Passwords do not match', 'error'); return; }
+
+  state.settings.password = next;
+  saveSettings(state.settings);
+  document.getElementById('currentPass').value = '';
+  document.getElementById('newPass').value = '';
+  document.getElementById('confirmPass').value = '';
+  toast('Password updated successfully', 'success');
+}
+
+/* ============================================================
+ *  INIT
+ * ============================================================ */
+renderDashboard();
+</script>
+</body>
+</html>
