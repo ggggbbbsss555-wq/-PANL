@@ -219,10 +219,16 @@
     position: fixed; inset: 0;
     background: var(--bg);
     display: grid; place-items: center;
-    z-index: 999;
+    z-index: 5000;
     padding: 1.5rem;
+    overflow-y: auto;
   }
   .login-overlay.hidden { display: none; }
+  .login-overlay::before {
+    content: ""; position: absolute; inset: 0;
+    background: var(--bg);
+    z-index: -1;
+  }
   .login-card {
     background: var(--bg-elev);
     border: 1px solid var(--border);
@@ -844,7 +850,7 @@
   .image-modal {
     position: fixed; inset: 0;
     background: rgba(0,0,0,.85);
-    z-index: 2000;
+    z-index: 3000;
     display: none;
     align-items: center; justify-content: center;
     padding: 2rem;
@@ -856,6 +862,57 @@
     border-radius: 8px;
     box-shadow: 0 20px 60px rgba(0,0,0,.4);
   }
+
+  /* ===================== SEND MESSAGE MODAL ===================== */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.55);
+    z-index: 4000;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 1.5rem;
+    overflow-y: auto;
+  }
+  .modal-overlay.show { display: flex; animation: fadeIn .15s ease; }
+  .modal-card {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.75rem;
+    width: 100%; max-width: 480px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.25);
+    position: relative;
+  }
+  .modal-close {
+    position: absolute; top: .85rem; left: .85rem;
+    width: 28px; height: 28px; border-radius: 6px;
+    background: transparent; color: var(--text-muted);
+    display: grid; place-items: center;
+    transition: all .12s ease;
+  }
+  .modal-close:hover { background: var(--bg-soft); color: var(--text); }
+  .modal-header { text-align: center; margin-bottom: 1.25rem; padding: 0 1.5rem; }
+  .modal-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: var(--accent-soft); color: var(--accent);
+    display: grid; place-items: center;
+    margin: 0 auto .75rem;
+  }
+  .modal-icon .icon { width: 22px; height: 22px; }
+  .modal-title { font-size: 1.15rem; font-weight: 700; margin-bottom: .25rem; }
+  .modal-subtitle { color: var(--text-muted); font-size: .82rem; }
+  .modal-recipient {
+    background: var(--bg-soft); border: 1px solid var(--border);
+    border-radius: 8px; padding: .65rem .85rem;
+    display: flex; align-items: center; gap: .65rem;
+    margin-bottom: 1.1rem;
+  }
+  .modal-recipient .user-avatar {
+    width: 32px; height: 32px; font-size: .75rem;
+  }
+  .modal-recipient-info { flex: 1; min-width: 0; }
+  .modal-recipient-info strong { font-size: .85rem; display: block; }
+  .modal-recipient-info small { color: var(--text-muted); font-size: .72rem; }
 
   .empty-state {
     text-align: center; padding: 3rem 1rem;
@@ -903,34 +960,35 @@
 </head>
 <body>
 
+<!-- Login overlay (shown when logged out) -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo">AD</div>
+    <div class="login-title">Admin Panel</div>
+    <div class="login-subtitle">Sign in to access the dashboard</div>
+    <form class="login-form" id="loginForm" onsubmit="return doLogin(event)">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="admin@dashboard.io" autocomplete="username" required />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="btn-primary" style="justify-content:center;width:100%;margin-top:.25rem">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Sign In
+      </button>
+    </form>
+    <div class="login-hint">
+      Default: <strong>admin@dashboard.io</strong> / <strong>Admin@2024</strong>
+    </div>
+  </div>
+</div>
+
 <div class="app">
   <!-- Sidebar -->
   <aside class="sidebar">
-    <!-- Login overlay (shown when logged out) -->
-    <div class="login-overlay" id="loginOverlay">
-      <div class="login-card">
-        <div class="login-logo">AD</div>
-        <div class="login-title">Admin Panel</div>
-        <div class="login-subtitle">Sign in to access the dashboard</div>
-        <form class="login-form" id="loginForm" onsubmit="return doLogin(event)">
-          <div class="field">
-            <label>Email</label>
-            <input type="email" id="loginEmail" placeholder="admin@dashboard.io" autocomplete="username" required />
-          </div>
-          <div class="field">
-            <label>Password</label>
-            <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required />
-          </div>
-          <button type="submit" class="btn-primary" style="justify-content:center;width:100%;margin-top:.25rem">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-            Sign In
-          </button>
-        </form>
-        <div class="login-hint">
-          Default: <strong>admin@dashboard.io</strong> / <strong>Admin@2024</strong>
-        </div>
-      </div>
-    </div>
     <div class="brand">
       <div class="brand-logo">AD</div>
       <div class="brand-text">
@@ -1488,6 +1546,47 @@
   <img id="imageModalImg" src="" alt="Attachment preview" />
 </div>
 
+<!-- Send message modal -->
+<div class="modal-overlay" id="sendMessageModal" onclick="if(event.target===this) closeSendMessageModal()">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeSendMessageModal()" title="Close">
+      <svg class="icon sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-header">
+      <div class="modal-icon">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div class="modal-title">Send Direct Message</div>
+      <div class="modal-subtitle">This message will appear in the user's notifications</div>
+    </div>
+    <div class="modal-recipient">
+      <div class="user-avatar" id="modalRecipientAvatar">?</div>
+      <div class="modal-recipient-info">
+        <strong id="modalRecipientName">—</strong>
+        <small id="modalRecipientEmail">—</small>
+      </div>
+      <span class="id-code" id="modalRecipientId">—</span>
+    </div>
+    <div class="form-grid">
+      <div class="field" style="grid-column: 1 / -1">
+        <label>Message Title</label>
+        <input type="text" id="sendMessageTitle" placeholder="e.g. Important account update" maxlength="80" />
+      </div>
+      <div class="field" style="grid-column: 1 / -1">
+        <label>Message Body</label>
+        <textarea id="sendMessageBody" placeholder="Write your message here..."></textarea>
+      </div>
+    </div>
+    <div style="margin-top:1.25rem;display:flex;gap:.5rem;justify-content:flex-end">
+      <button class="btn-outline" onclick="closeSendMessageModal()">Cancel</button>
+      <button class="btn-primary" onclick="sendDirectMessage()">
+        <svg class="icon" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Send Message
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ============================================================
  *  THEME
@@ -1787,6 +1886,7 @@ const ICONS = {
   arrowUp:'<svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>',
   arrowDn:'<svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>',
   user:   '<svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  message:'<svg class="icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
 };
 
 /* ============================================================
@@ -1970,7 +2070,8 @@ function renderUsers(filteredList) {
                   : `<button class="dropdown-item danger" ${isAdmin ? 'disabled' : ''} onclick="banUser('${u.id}'); closeAllDropdowns()">${ICONS.ban}<span>Ban User</span></button>`
                 }
                 <div class="dropdown-divider"></div>
-                <button class="dropdown-item accent" onclick="selectUser('${u.id}'); closeAllDropdowns()">${ICONS.view}<span>View Details</span></button>
+                <button class="dropdown-item accent" onclick="openSendMessageModal('${u.id}'); closeAllDropdowns()">${ICONS.message}<span>Send Message</span></button>
+                <button class="dropdown-item" onclick="selectUser('${u.id}'); closeAllDropdowns()">${ICONS.view}<span>View Details</span></button>
               </div>
             </div>
           </div>
@@ -2030,6 +2131,86 @@ function setUserLevel(userId, level) {
     selectUser(userId);
   }
 }
+
+/* ============================================================
+ *  SEND MESSAGE MODAL
+ * ============================================================ */
+let messageTargetId = null;
+
+function openSendMessageModal(userId) {
+  const u = state.users.find(x => x.id === userId);
+  if (!u) {
+    toast('User not found', 'error');
+    return;
+  }
+  messageTargetId = userId;
+  document.getElementById('modalRecipientAvatar').textContent = initials(u.name);
+  document.getElementById('modalRecipientName').textContent = u.name;
+  document.getElementById('modalRecipientEmail').textContent = u.email;
+  document.getElementById('modalRecipientId').textContent = u.id;
+  document.getElementById('sendMessageTitle').value = '';
+  document.getElementById('sendMessageBody').value = '';
+  document.getElementById('sendMessageModal').classList.add('show');
+  setTimeout(() => document.getElementById('sendMessageTitle').focus(), 50);
+}
+
+function closeSendMessageModal() {
+  document.getElementById('sendMessageModal').classList.remove('show');
+  messageTargetId = null;
+}
+
+function sendDirectMessage() {
+  if (!messageTargetId) {
+    toast('No recipient selected', 'error');
+    return;
+  }
+  const title = document.getElementById('sendMessageTitle').value.trim();
+  const body = document.getElementById('sendMessageBody').value.trim();
+  if (!title) {
+    toast('Please enter a message title', 'error');
+    document.getElementById('sendMessageTitle').focus();
+    return;
+  }
+  if (!body) {
+    toast('Please enter the message body', 'error');
+    document.getElementById('sendMessageBody').focus();
+    return;
+  }
+  const target = state.users.find(x => x.id === messageTargetId);
+  if (!target) {
+    toast('Recipient not found', 'error');
+    closeSendMessageModal();
+    return;
+  }
+  // Create notification with channel=USER_ID
+  const notif = {
+    id: 'n' + Date.now(),
+    title, body,
+    channel: 'USER_ID',
+    target: messageTargetId,
+    sentAt: new Date().toISOString(),
+    sentCount: 1,
+  };
+  state.notifs.unshift(notif);
+  saveNotifs(state.notifs);
+  toast(`Message sent to ${target.name}`, 'success');
+  closeSendMessageModal();
+  // Refresh notifications history if currently shown
+  if (document.getElementById('tab-notifications').classList.contains('active')) {
+    renderNotifHistory();
+  }
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('sendMessageModal').classList.contains('show')) {
+      closeSendMessageModal();
+    }
+    closeAllDropdowns();
+    closeImageModal();
+  }
+});
 
 function searchUsers() {
   const q = document.getElementById('userSearch').value.trim().toLowerCase();
