@@ -555,6 +555,239 @@
     margin: .5rem 0 1.25rem;
   }
 
+  /* ===================== OFFERS & SUBSCRIPTIONS ===================== */
+  .subsection-tabs {
+    display: flex; gap: .35rem; margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .subsection-tab {
+    padding: .55rem 1rem;
+    color: var(--text-muted);
+    font-size: .85rem; font-weight: 600;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all .15s ease;
+  }
+  .subsection-tab:hover { color: var(--text); }
+  .subsection-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .offers-list { display: flex; flex-direction: column; gap: .65rem; }
+  .offer-item {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1rem 1.1rem;
+    display: flex; gap: 1rem; align-items: flex-start;
+    transition: border-color .15s ease;
+  }
+  .offer-item:hover { border-color: var(--accent); }
+  .offer-item.disabled { opacity: .55; }
+  .offer-body { flex: 1; min-width: 0; }
+  .offer-title { font-weight: 600; font-size: .92rem; margin-bottom: .25rem; }
+  .offer-text { color: var(--text-muted); font-size: .82rem; line-height: 1.5; }
+  .offer-meta { color: var(--text-faint); font-size: .72rem; margin-top: .5rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  .plans-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+  .plan-card {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem;
+    position: relative; transition: all .2s ease;
+  }
+  .plan-card.featured { border-color: var(--accent); border-width: 2px; }
+  .plan-card.featured::before {
+    content: "POPULAR"; position: absolute; top: -10px; right: 12px;
+    background: var(--accent); color: #fff;
+    padding: .15rem .5rem; border-radius: 4px;
+    font-size: .62rem; font-weight: 700; letter-spacing: .08em;
+  }
+  .plan-name { font-size: 1.05rem; font-weight: 700; margin-bottom: .25rem; }
+  .plan-price { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: .25rem; }
+  .plan-price small { font-size: .8rem; font-weight: 500; color: var(--text-muted); }
+  .plan-duration { color: var(--text-muted); font-size: .78rem; margin-bottom: .85rem; }
+  .plan-features { list-style: none; margin: 0 0 1rem; padding: 0; }
+  .plan-features li {
+    font-size: .8rem; color: var(--text-muted);
+    padding: .25rem 0; display: flex; align-items: flex-start; gap: .5rem;
+  }
+  .plan-features li .icon { color: var(--accent); margin-top: 2px; }
+  .plan-actions { display: flex; gap: .35rem; }
+
+  /* ===================== SUPPORT CHAT ===================== */
+  .chat-layout {
+    display: grid; grid-template-columns: 280px 1fr;
+    gap: 1rem;
+    height: calc(100vh - 220px); min-height: 480px;
+  }
+  @media (max-width: 800px) {
+    .chat-layout { grid-template-columns: 1fr; height: auto; }
+    .chat-view-wrap.hide-on-mobile { display: none; }
+  }
+  .conversations-panel {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;
+  }
+  .conversations-header {
+    padding: .85rem 1rem;
+    border-bottom: 1px solid var(--border);
+    font-size: .85rem; font-weight: 600;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .conversations-list { flex: 1; overflow-y: auto; }
+  .conversation-item {
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--border-soft);
+    cursor: pointer; transition: background .12s ease;
+    display: flex; gap: .65rem; align-items: center;
+  }
+  .conversation-item:hover { background: var(--bg-soft); }
+  .conversation-item.active { background: var(--accent-soft); border-left: 3px solid var(--accent); padding-left: calc(1rem - 3px); }
+  .conv-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: grid; place-items: center;
+    font-weight: 600; font-size: .8rem;
+    flex-shrink: 0; position: relative;
+  }
+  .conv-avatar .unread-dot {
+    position: absolute; top: -2px; right: -2px;
+    width: 12px; height: 12px;
+    background: var(--danger); border: 2px solid var(--bg-elev);
+    border-radius: 50%;
+  }
+  .conv-info { flex: 1; min-width: 0; }
+  .conv-name { font-weight: 600; font-size: .85rem; }
+  .conv-preview { color: var(--text-muted); font-size: .75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .conv-time { color: var(--text-faint); font-size: .68rem; }
+
+  .chat-view-wrap {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;
+  }
+  .chat-header {
+    padding: .85rem 1.1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .chat-header-user { display: flex; align-items: center; gap: .65rem; }
+  .chat-header-user strong { font-size: .9rem; }
+  .chat-header-user small { color: var(--text-muted); font-size: .72rem; }
+  .chat-status {
+    display: inline-flex; align-items: center; gap: .25rem;
+    font-size: .7rem; font-weight: 600;
+    padding: .15rem .5rem; border-radius: 4px;
+    border: 1px solid;
+  }
+  .chat-status.open { color: var(--success); border-color: var(--success); background: rgba(22,163,74,.08); }
+  .chat-status.resolved { color: var(--text-muted); border-color: var(--border); background: var(--bg-soft); }
+  .chat-messages {
+    flex: 1; overflow-y: auto;
+    padding: 1rem 1.1rem;
+    display: flex; flex-direction: column; gap: .85rem;
+  }
+  .message { display: flex; gap: .55rem; max-width: 75%; align-items: flex-end; }
+  .message.admin { align-self: flex-end; flex-direction: row-reverse; }
+  .message-avatar {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--text-faint); color: #fff;
+    display: grid; place-items: center;
+    font-size: .65rem; font-weight: 600;
+    flex-shrink: 0;
+  }
+  .message.admin .message-avatar { background: var(--accent); }
+  .message-bubble {
+    background: var(--bg-soft); border: 1px solid var(--border);
+    padding: .55rem .8rem; border-radius: 12px;
+    font-size: .82rem; line-height: 1.5;
+    word-wrap: break-word; max-width: 100%;
+  }
+  .message.admin .message-bubble {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+  }
+  .message-image {
+    display: block; max-width: 220px; max-height: 220px;
+    border-radius: 8px; margin-top: .35rem;
+    border: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .message.admin .message-image { border-color: rgba(255,255,255,.2); }
+  .message-meta { font-size: .68rem; color: var(--text-faint); margin-top: .2rem; }
+  .message.admin .message-meta { color: rgba(255,255,255,.7); }
+
+  .chat-input {
+    border-top: 1px solid var(--border);
+    padding: .65rem .85rem;
+    display: flex; gap: .5rem; align-items: flex-end;
+    background: var(--bg-elev);
+  }
+  .chat-input textarea {
+    flex: 1; resize: none; min-height: 38px; max-height: 120px;
+    background: var(--bg-soft); border: 1px solid var(--border);
+    color: var(--text); padding: .55rem .75rem; border-radius: 8px;
+    font-size: .85rem; font-family: inherit;
+    transition: border-color .15s ease;
+  }
+  .chat-input textarea:focus { border-color: var(--accent); }
+  .chat-attach {
+    width: 38px; height: 38px; border-radius: 8px;
+    background: var(--bg-soft); border: 1px solid var(--border);
+    color: var(--text-muted);
+    display: grid; place-items: center;
+    transition: all .15s ease;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .chat-attach:hover { color: var(--accent); border-color: var(--accent); }
+  .chat-send {
+    background: var(--accent); color: #fff;
+    width: 38px; height: 38px; border-radius: 8px;
+    display: grid; place-items: center;
+    border: 1px solid var(--accent);
+    transition: all .15s ease;
+    flex-shrink: 0;
+  }
+  .chat-send:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .chat-send:disabled { opacity: .4; cursor: not-allowed; }
+  .chat-attach-input { display: none; }
+  .image-preview-bar {
+    display: flex; gap: .35rem; flex-wrap: wrap;
+    margin-bottom: .5rem;
+  }
+  .image-preview {
+    position: relative; width: 60px; height: 60px;
+    border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .image-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .image-preview-remove {
+    position: absolute; top: 0; right: 0;
+    width: 18px; height: 18px;
+    background: rgba(0,0,0,.7); color: #fff;
+    border-radius: 0 6px 0 6px;
+    display: grid; place-items: center;
+    font-size: 11px; cursor: pointer;
+  }
+
+  .image-modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.85);
+    z-index: 2000;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 2rem;
+    cursor: zoom-out;
+  }
+  .image-modal.show { display: flex; }
+  .image-modal img {
+    max-width: 90vw; max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.4);
+  }
+
+  .empty-state {
+    text-align: center; padding: 3rem 1rem;
+    color: var(--text-faint);
+  }
+  .empty-state .icon { color: var(--border); margin-bottom: .65rem; }
+  .empty-state p { font-size: .85rem; margin-bottom: .25rem; }
+  .empty-state small { color: var(--text-faint); font-size: .75rem; }
+
   /* User detail */
   .user-info {
     display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -644,6 +877,14 @@
       <button class="nav-item" data-tab="promo">
         <svg class="icon" viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12v4h2a2 2 0 0 0 0-4h-2z"/></svg>
         Promo Codes
+      </button>
+      <button class="nav-item" data-tab="offers">
+        <svg class="icon" viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+        Offers & Plans
+      </button>
+      <button class="nav-item" data-tab="support">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        Support
       </button>
       <button class="nav-item" data-tab="settings">
         <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -914,6 +1155,183 @@
       </div>
     </section>
 
+    <!-- ==================== OFFERS & PLANS ==================== -->
+    <section class="tab-content" id="tab-offers">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Offers &amp; Subscriptions</h1>
+          <p>Create promotional offers and subscription plans</p>
+        </div>
+      </div>
+
+      <div class="subsection-tabs">
+        <button class="subsection-tab active" onclick="switchOfferTab('offers', this)">Promotional Offers</button>
+        <button class="subsection-tab" onclick="switchOfferTab('plans', this)">Subscription Plans</button>
+      </div>
+
+      <!-- Offers subsection -->
+      <div id="offersSubsection">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Create New Offer</h2>
+              <p>Write a promotional offer message</p>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="field" style="grid-column: 1 / -1">
+              <label>Offer Title</label>
+              <input type="text" id="offerTitle" placeholder="e.g. Summer Sale 50% Off" maxlength="80" />
+            </div>
+            <div class="field" style="grid-column: 1 / -1">
+              <label>Offer Description</label>
+              <textarea id="offerBody" placeholder="Describe the offer, conditions, validity..."></textarea>
+            </div>
+          </div>
+          <div style="margin-top:1.25rem;display:flex;gap:.5rem">
+            <button class="btn-primary" onclick="addOffer()">
+              <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Offer
+            </button>
+            <button class="btn-ghost" onclick="clearOfferForm()">Clear</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>All Offers</h2>
+              <p>Active and inactive promotional offers</p>
+            </div>
+          </div>
+          <div class="offers-list" id="offersList"></div>
+        </div>
+      </div>
+
+      <!-- Plans subsection -->
+      <div id="plansSubsection" style="display:none">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Create Subscription Plan</h2>
+              <p>Define a new tier with pricing and features</p>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label>Plan Name</label>
+              <input type="text" id="planName" placeholder="e.g. Pro" maxlength="40" />
+            </div>
+            <div class="field">
+              <label>Price (USD)</label>
+              <input type="number" id="planPrice" min="0" step="0.01" placeholder="9.99" />
+            </div>
+            <div class="field">
+              <label>Billing Cycle</label>
+              <select id="planDuration">
+                <option value="month">Monthly</option>
+                <option value="year">Yearly</option>
+                <option value="week">Weekly</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Featured Plan</label>
+              <select id="planFeatured">
+                <option value="false">No</option>
+                <option value="true">Yes — Highlight as Popular</option>
+              </select>
+            </div>
+            <div class="field" style="grid-column: 1 / -1">
+              <label>Features (one per line)</label>
+              <textarea id="planFeatures" placeholder="Unlimited access&#10;Priority support&#10;No ads"></textarea>
+            </div>
+          </div>
+          <div style="margin-top:1.25rem;display:flex;gap:.5rem">
+            <button class="btn-primary" onclick="addPlan()">
+              <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Plan
+            </button>
+            <button class="btn-ghost" onclick="clearPlanForm()">Clear</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Subscription Plans</h2>
+              <p>All available tiers</p>
+            </div>
+          </div>
+          <div class="plans-grid" id="plansGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SUPPORT ==================== -->
+    <section class="tab-content" id="tab-support">
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1>Support Messages</h1>
+          <p>Reply to user conversations — text and images supported</p>
+        </div>
+      </div>
+
+      <div class="chat-layout">
+        <!-- Conversations list -->
+        <div class="conversations-panel">
+          <div class="conversations-header">
+            <span>Conversations</span>
+            <span id="convCount" style="color:var(--text-muted);font-size:.78rem">0</span>
+          </div>
+          <div class="conversations-list" id="conversationsList"></div>
+        </div>
+
+        <!-- Chat view -->
+        <div class="chat-view-wrap" id="chatViewWrap">
+          <div class="empty-state" id="chatEmpty">
+            <svg class="icon xl" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            <p>Select a conversation to view messages</p>
+            <small>You can reply with text and attach images</small>
+          </div>
+          <div id="chatView" style="display:none;flex-direction:column;height:100%">
+            <div class="chat-header">
+              <div class="chat-header-user">
+                <div class="conv-avatar" id="chatHeaderAvatar">?</div>
+                <div>
+                  <strong id="chatHeaderName">—</strong>
+                  <div><small id="chatHeaderEmail">—</small></div>
+                </div>
+              </div>
+              <div style="display:flex;gap:.5rem;align-items:center">
+                <span class="chat-status open" id="chatStatusBadge">Open</span>
+                <button class="btn-ghost" onclick="toggleConversationStatus()" id="resolveBtn">
+                  <svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                  Mark Resolved
+                </button>
+              </div>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input">
+              <div style="flex:1">
+                <div class="image-preview-bar" id="imagePreviewBar"></div>
+                <div style="display:flex;gap:.5rem;align-items:flex-end">
+                  <textarea id="replyText" placeholder="Type your reply..." rows="1"
+                    onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendReply()}"></textarea>
+                  <label class="chat-attach" title="Attach image">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    <input type="file" accept="image/*" class="chat-attach-input" onchange="handleImageAttach(event)" />
+                  </label>
+                  <button class="chat-send" onclick="sendReply()" id="sendBtn">
+                    <svg class="icon" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ==================== SETTINGS ==================== -->
     <section class="tab-content" id="tab-settings">
       <div class="page-header">
@@ -988,6 +1406,11 @@
 
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- Image modal -->
+<div class="image-modal" id="imageModal" onclick="closeImageModal()">
+  <img id="imageModalImg" src="" alt="Attachment preview" />
+</div>
+
 <script>
 /* ============================================================
  *  THEME
@@ -1018,6 +1441,9 @@ const STORAGE_KEYS = {
   NOTIFS: 'ad_notifications',
   PROMOS: 'ad_promos',
   SETTINGS: 'ad_settings',
+  OFFERS: 'ad_offers',
+  PLANS: 'ad_plans',
+  CONVOS: 'ad_convos',
 };
 
 const SAMPLE_NAMES = [
@@ -1095,13 +1521,105 @@ function loadData() {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
   }
 
-  return { users, notifs, promos, settings };
+  let offers = JSON.parse(localStorage.getItem(STORAGE_KEYS.OFFERS) || '[]');
+  if (offers.length === 0) {
+    offers = [
+      {
+        id: 'o' + Date.now(),
+        title: 'Summer Mega Sale — 50% Off',
+        body: 'Beat the heat with our biggest summer sale! Get 50% off all annual plans, valid until August 31st. Use code SUMMER50 at checkout.',
+        active: true,
+        createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+      },
+      {
+        id: 'o' + (Date.now() + 1),
+        title: 'Refer a Friend — Both Get 1 Month Free',
+        body: 'Invite friends to the platform. When they subscribe, both of you receive 1 month of premium access for free.',
+        active: true,
+        createdAt: new Date(Date.now() - 86400000).toISOString(),
+      },
+      {
+        id: 'o' + (Date.now() + 2),
+        title: 'Black Friday Preview',
+        body: 'Coming soon — exclusive Black Friday deals for premium members only.',
+        active: false,
+        createdAt: new Date(Date.now() - 7 * 86400000).toISOString(),
+      },
+    ];
+    localStorage.setItem(STORAGE_KEYS.OFFERS, JSON.stringify(offers));
+  }
+
+  let plans = JSON.parse(localStorage.getItem(STORAGE_KEYS.PLANS) || '[]');
+  if (plans.length === 0) {
+    plans = [
+      {
+        id: 'pl1', name: 'Free', price: 0, duration: 'month',
+        features: ['Up to 100 users', 'Basic analytics', 'Email support'],
+        featured: false,
+        active: true, createdAt: new Date(Date.now() - 86400000).toISOString(),
+      },
+      {
+        id: 'pl2', name: 'Pro', price: 19.99, duration: 'month',
+        features: ['Up to 5,000 users', 'Advanced analytics', 'Priority support', 'Custom branding', 'API access'],
+        featured: true,
+        active: true, createdAt: new Date(Date.now() - 43200000).toISOString(),
+      },
+      {
+        id: 'pl3', name: 'Enterprise', price: 99.99, duration: 'month',
+        features: ['Unlimited users', 'White-label dashboard', 'Dedicated manager', '24/7 phone support', 'Custom integrations'],
+        featured: false,
+        active: true, createdAt: new Date(Date.now() - 7200000).toISOString(),
+      },
+    ];
+    localStorage.setItem(STORAGE_KEYS.PLANS, JSON.stringify(plans));
+  }
+
+  let convos = JSON.parse(localStorage.getItem(STORAGE_KEYS.CONVOS) || '[]');
+  if (convos.length === 0) {
+    const u1 = users[0];
+    const u2 = users[1];
+    const u3 = users.find(x => x.status === 'BANNED') || users[5];
+    convos = [
+      {
+        id: 'c1', userId: u1.id, userName: u1.name, userEmail: u1.email,
+        status: 'open', unread: true,
+        messages: [
+          { from: 'user', text: 'Hi, I have trouble accessing my account. The dashboard shows a blank screen.', image: null, at: new Date(Date.now() - 7200000).toISOString() },
+          { from: 'user', text: 'Here is a screenshot of what I see:', image: 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200"><rect width="400" height="200" fill="#fafafa"/><text x="200" y="100" text-anchor="middle" font-family="monospace" font-size="14" fill="#737373">[Screenshot: blank page]</text></svg>'), at: new Date(Date.now() - 7100000).toISOString() },
+        ],
+      },
+      {
+        id: 'c2', userId: u2.id, userName: u2.name, userEmail: u2.email,
+        status: 'open', unread: false,
+        messages: [
+          { from: 'user', text: 'How do I upgrade to the premium plan?', image: null, at: new Date(Date.now() - 3600000).toISOString() },
+          { from: 'admin', text: 'Hi ' + u2.name + '! Go to Settings → Subscription → Upgrade. Use code VIP2024 for 25% off your first month.', image: null, at: new Date(Date.now() - 3500000).toISOString() },
+          { from: 'user', text: 'Thank you! Just upgraded. The discount worked perfectly.', image: null, at: new Date(Date.now() - 3000000).toISOString() },
+        ],
+      },
+      {
+        id: 'c3', userId: u3.id, userName: u3.name, userEmail: u3.email,
+        status: 'resolved', unread: false,
+        messages: [
+          { from: 'user', text: 'Why was my account banned?', image: null, at: new Date(Date.now() - 86400000).toISOString() },
+          { from: 'admin', text: 'Your account was flagged for unusual activity. Please verify your identity by sending a government-issued ID.', image: null, at: new Date(Date.now() - 86300000).toISOString() },
+          { from: 'user', text: 'OK, I uploaded the document. Please check.', image: null, at: new Date(Date.now() - 86000000).toISOString() },
+        ],
+      },
+    ];
+    localStorage.setItem(STORAGE_KEYS.CONVOS, JSON.stringify(convos));
+  }
+
+  return { users, notifs, promos, settings, offers, plans, convos };
 }
 
 function saveUsers(users) { localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users)); }
 function saveNotifs(notifs) { localStorage.setItem(STORAGE_KEYS.NOTIFS, JSON.stringify(notifs)); }
 function savePromos(promos) { localStorage.setItem(STORAGE_KEYS.PROMOS, JSON.stringify(promos)); }
 function saveSettings(s) { localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(s)); }
+function saveOffers(o) { localStorage.setItem(STORAGE_KEYS.OFFERS, JSON.stringify(o)); }
+function savePlans(p) { localStorage.setItem(STORAGE_KEYS.PLANS, JSON.stringify(p)); }
+function saveConvos(c) { localStorage.setItem(STORAGE_KEYS.CONVOS, JSON.stringify(c)); }
 
 let state = loadData();
 let selectedUserId = null;
@@ -1166,6 +1684,12 @@ const ICONS = {
   shield: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
   bell2:  '<svg class="icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>',
   tag:    '<svg class="icon" viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12v4h2a2 2 0 0 0 0-4h-2z"/></svg>',
+  gift:   '<svg class="icon" viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
+  credit: '<svg class="icon" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
+  send:   '<svg class="icon" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+  attach: '<svg class="icon" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>',
+  image:  '<svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+  power:  '<svg class="icon" viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>',
 };
 
 /* ============================================================
@@ -1181,6 +1705,8 @@ function goTo(tab) {
   if (tab === 'users') renderUsers();
   if (tab === 'notifications') renderNotifHistory();
   if (tab === 'promo') renderPromos();
+  if (tab === 'offers') { renderOffers(); renderPlans(); }
+  if (tab === 'support') renderConversations();
   if (tab === 'settings') renderSettings();
 }
 
@@ -1578,8 +2104,317 @@ function renderPromos() {
 }
 
 /* ============================================================
- *  SETTINGS
+ *  OFFERS & PLANS
  * ============================================================ */
+function switchOfferTab(which, btn) {
+  document.querySelectorAll('.subsection-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('offersSubsection').style.display = which === 'offers' ? 'block' : 'none';
+  document.getElementById('plansSubsection').style.display = which === 'plans' ? 'block' : 'none';
+}
+
+function clearOfferForm() {
+  document.getElementById('offerTitle').value = '';
+  document.getElementById('offerBody').value = '';
+}
+
+function addOffer() {
+  const title = document.getElementById('offerTitle').value.trim();
+  const body = document.getElementById('offerBody').value.trim();
+  if (!title) { toast('Please enter an offer title', 'error'); return; }
+  if (!body) { toast('Please enter offer description', 'error'); return; }
+  state.offers.unshift({
+    id: 'o' + Date.now(),
+    title, body, active: true,
+    createdAt: new Date().toISOString(),
+  });
+  saveOffers(state.offers);
+  clearOfferForm();
+  toast('Offer created successfully', 'success');
+  renderOffers();
+}
+
+function toggleOffer(id) {
+  const o = state.offers.find(x => x.id === id);
+  if (!o) return;
+  o.active = !o.active;
+  saveOffers(state.offers);
+  toast(`Offer ${o.active ? 'activated' : 'disabled'}`, 'info');
+  renderOffers();
+}
+
+function deleteOffer(id) {
+  const o = state.offers.find(x => x.id === id);
+  if (!o) return;
+  if (!confirm(`Delete offer "${o.title}"?`)) return;
+  state.offers = state.offers.filter(x => x.id !== id);
+  saveOffers(state.offers);
+  toast('Offer deleted', 'info');
+  renderOffers();
+}
+
+function renderOffers() {
+  const list = document.getElementById('offersList');
+  if (state.offers.length === 0) {
+    list.innerHTML = `<div class="empty">${ICONS.gift}<div>No offers yet — create one above</div></div>`;
+    return;
+  }
+  list.innerHTML = state.offers.map(o => `
+    <div class="offer-item ${o.active ? '' : 'disabled'}">
+      <div class="stat-icon" style="margin-bottom:0">${ICONS.gift.replace('class="icon"','class="icon lg"')}</div>
+      <div class="offer-body">
+        <div class="offer-title">${o.title}</div>
+        <div class="offer-text">${o.body}</div>
+        <div class="offer-meta">
+          <span>${formatDate(o.createdAt)}</span>
+          <span>${o.active ? '<span class="badge active">' + ICONS.check + '<span>Active</span></span>' : '<span class="badge banned">' + ICONS.ban + '<span>Disabled</span></span>'}</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="icon-btn icon-btn-view" onclick="toggleOffer('${o.id}')" title="${o.active ? 'Disable' : 'Activate'}">
+          ${o.active ? ICONS.ban : ICONS.unban}
+        </button>
+        <button class="icon-btn icon-btn-ban" onclick="deleteOffer('${o.id}')" title="Delete">${ICONS.trash}</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function clearPlanForm() {
+  document.getElementById('planName').value = '';
+  document.getElementById('planPrice').value = '';
+  document.getElementById('planFeatures').value = '';
+  document.getElementById('planFeatured').value = 'false';
+}
+
+function addPlan() {
+  const name = document.getElementById('planName').value.trim();
+  const price = parseFloat(document.getElementById('planPrice').value);
+  const duration = document.getElementById('planDuration').value;
+  const featured = document.getElementById('planFeatured').value === 'true';
+  const featuresRaw = document.getElementById('planFeatures').value;
+  const features = featuresRaw.split('\n').map(s => s.trim()).filter(Boolean);
+
+  if (!name) { toast('Please enter a plan name', 'error'); return; }
+  if (isNaN(price) || price < 0) { toast('Please enter a valid price', 'error'); return; }
+  if (features.length === 0) { toast('Please add at least one feature', 'error'); return; }
+
+  state.plans.unshift({
+    id: 'pl' + Date.now(),
+    name, price, duration, features, featured,
+    active: true, createdAt: new Date().toISOString(),
+  });
+  savePlans(state.plans);
+  clearPlanForm();
+  toast('Subscription plan added', 'success');
+  renderPlans();
+}
+
+function deletePlan(id) {
+  const p = state.plans.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`Delete plan "${p.name}"?`)) return;
+  state.plans = state.plans.filter(x => x.id !== id);
+  savePlans(state.plans);
+  toast(`Plan ${p.name} deleted`, 'info');
+  renderPlans();
+}
+
+function renderPlans() {
+  const grid = document.getElementById('plansGrid');
+  if (state.plans.length === 0) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">${ICONS.credit}<div>No plans yet — create one above</div></div>`;
+    return;
+  }
+  const cycleLabels = { month: '/mo', year: '/yr', week: '/wk' };
+  grid.innerHTML = state.plans.map(p => `
+    <div class="plan-card ${p.featured ? 'featured' : ''}">
+      <div class="plan-name">${p.name}</div>
+      <div class="plan-price">$${Number(p.price).toFixed(2)} <small>${cycleLabels[p.duration] || ''}</small></div>
+      <div class="plan-duration">${p.duration === 'month' ? 'Billed monthly' : p.duration === 'year' ? 'Billed annually' : 'Billed weekly'}</div>
+      <ul class="plan-features">
+        ${p.features.map(f => `<li>${ICONS.check}<span>${f}</span></li>`).join('')}
+      </ul>
+      <div class="plan-actions">
+        <button class="btn-ghost" onclick="deletePlan('${p.id}')">${ICONS.trash}Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ============================================================
+ *  SUPPORT CHAT
+ * ============================================================ */
+let selectedConvoId = null;
+let pendingImage = null; // base64 string
+
+function renderConversations() {
+  const list = document.getElementById('conversationsList');
+  document.getElementById('convCount').textContent = state.convos.length;
+  if (state.convos.length === 0) {
+    list.innerHTML = `<div class="empty">${ICONS.bell2}<div>No conversations yet</div></div>`;
+    return;
+  }
+  // Sort: open + unread first
+  const sorted = [...state.convos].sort((a, b) => {
+    if (a.unread !== b.unread) return a.unread ? -1 : 1;
+    return new Date(b.messages.at(-1)?.at || 0) - new Date(a.messages.at(-1)?.at || 0);
+  });
+  list.innerHTML = sorted.map(c => {
+    const last = c.messages.at(-1);
+    const preview = last ? (last.image ? '📎 Image attachment' : last.text) : '—';
+    return `
+      <div class="conversation-item ${selectedConvoId === c.id ? 'active' : ''}" onclick="selectConversation('${c.id}')">
+        <div class="conv-avatar">${initials(c.userName)}${c.unread ? '<span class="unread-dot"></span>' : ''}</div>
+        <div class="conv-info">
+          <div class="conv-name">${c.userName}</div>
+          <div class="conv-preview">${preview}</div>
+        </div>
+        <div class="conv-time">${last ? formatShortTime(last.at) : ''}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function formatShortTime(iso) {
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = (now - d) / 1000;
+  if (diff < 60) return 'now';
+  if (diff < 3600) return Math.floor(diff / 60) + 'm';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h';
+  if (diff < 604800) return Math.floor(diff / 86400) + 'd';
+  return d.toLocaleDateString('en-US', { day: '2-digit', month: 'short' });
+}
+
+function selectConversation(id) {
+  const c = state.convos.find(x => x.id === id);
+  if (!c) return;
+  selectedConvoId = id;
+  // Mark as read
+  c.unread = false;
+  saveConvos(state.convos);
+
+  document.getElementById('chatEmpty').style.display = 'none';
+  document.getElementById('chatView').style.display = 'flex';
+
+  document.getElementById('chatHeaderAvatar').textContent = initials(c.userName);
+  document.getElementById('chatHeaderName').textContent = c.userName;
+  document.getElementById('chatHeaderEmail').textContent = c.userEmail;
+
+  const statusBadge = document.getElementById('chatStatusBadge');
+  const resolveBtn = document.getElementById('resolveBtn');
+  if (c.status === 'resolved') {
+    statusBadge.className = 'chat-status resolved';
+    statusBadge.textContent = 'Resolved';
+    resolveBtn.innerHTML = ICONS.unban + 'Reopen';
+  } else {
+    statusBadge.className = 'chat-status open';
+    statusBadge.textContent = 'Open';
+    resolveBtn.innerHTML = ICONS.check + 'Mark Resolved';
+  }
+
+  renderMessages(c);
+  renderConversations();
+}
+
+function renderMessages(c) {
+  const box = document.getElementById('chatMessages');
+  box.innerHTML = c.messages.map(m => {
+    const fromLabel = m.from === 'admin' ? 'A' : initials(c.userName);
+    const imgHTML = m.image
+      ? `<img class="message-image" src="${m.image}" alt="attachment" onclick="openImageModal('${m.image.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')" />`
+      : '';
+    return `
+      <div class="message ${m.from === 'admin' ? 'admin' : ''}">
+        <div class="message-avatar">${fromLabel}</div>
+        <div>
+          <div class="message-bubble">${escapeHTML(m.text)}${imgHTML}</div>
+          <div class="message-meta">${formatShortTime(m.at)}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  // Scroll to bottom
+  setTimeout(() => { box.scrollTop = box.scrollHeight; }, 50);
+}
+
+function escapeHTML(s) {
+  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+}
+
+function sendReply() {
+  if (!selectedConvoId) return;
+  const c = state.convos.find(x => x.id === selectedConvoId);
+  if (!c) return;
+  const text = document.getElementById('replyText').value.trim();
+  if (!text && !pendingImage) {
+    toast('Type a message or attach an image first', 'error');
+    return;
+  }
+  c.messages.push({
+    from: 'admin',
+    text: text || '',
+    image: pendingImage,
+    at: new Date().toISOString(),
+  });
+  saveConvos(state.convos);
+  document.getElementById('replyText').value = '';
+  pendingImage = null;
+  document.getElementById('imagePreviewBar').innerHTML = '';
+  renderMessages(c);
+  renderConversations();
+  toast('Reply sent', 'success');
+}
+
+function handleImageAttach(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    toast('Please select an image file', 'error'); return;
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    toast('Image too large (max 2MB)', 'error'); return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    pendingImage = ev.target.result;
+    const bar = document.getElementById('imagePreviewBar');
+    bar.innerHTML = `
+      <div class="image-preview">
+        <img src="${pendingImage}" alt="preview" />
+        <div class="image-preview-remove" onclick="removePendingImage()">×</div>
+      </div>
+    `;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function removePendingImage() {
+  pendingImage = null;
+  document.getElementById('imagePreviewBar').innerHTML = '';
+}
+
+function openImageModal(src) {
+  document.getElementById('imageModalImg').src = src;
+  document.getElementById('imageModal').classList.add('show');
+}
+function closeImageModal() {
+  document.getElementById('imageModal').classList.remove('show');
+}
+
+function toggleConversationStatus() {
+  if (!selectedConvoId) return;
+  const c = state.convos.find(x => x.id === selectedConvoId);
+  if (!c) return;
+  c.status = c.status === 'resolved' ? 'open' : 'resolved';
+  saveConvos(state.convos);
+  selectConversation(selectedConvoId);
+  toast(`Conversation marked as ${c.status}`, 'info');
+}
+
+
 function renderSettings() {
   document.getElementById('currentEmail').value = state.settings.email;
   document.getElementById('adminEmail').textContent = state.settings.email;
