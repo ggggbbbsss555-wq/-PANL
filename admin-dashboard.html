@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>لوحة تحكم الإدارة</title>
+<style>
+  /* ===================== RESET & BASE ===================== */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Segoe UI', 'Tahoma', 'Cairo', system-ui, -apple-system, sans-serif;
+    background: #0b1220;
+    color: #e2e8f0;
+    line-height: 1.6;
+    direction: rtl;
+  }
+  button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+  input, select, textarea { font-family: inherit; outline: none; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: #0f172a; }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+  /* ===================== LAYOUT ===================== */
+  .app {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+  /* Sidebar */
+  .sidebar {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    border-left: 1px solid #1e293b;
+    padding: 1.5rem 1rem;
+    display: flex; flex-direction: column;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .brand {
+    display: flex; align-items: center; gap: .75rem;
+    padding-bottom: 1.5rem; margin-bottom: 1rem;
+    border-bottom: 1px solid #1e293b;
+  }
+  .brand-logo {
+    width: 42px; height: 42px; border-radius: 12px;
+    background: linear-gradient(135deg, #14b8a6, #0ea5e9);
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 1.2rem; color: #0b1220;
+    box-shadow: 0 8px 24px rgba(20, 184, 166, .35);
+  }
+  .brand-text { display: flex; flex-direction: column; }
+  .brand-text strong { font-size: 1rem; }
+  .brand-text small { color: #64748b; font-size: .75rem; }
+
+  .nav { display: flex; flex-direction: column; gap: .25rem; flex: 1; }
+  .nav-item {
+    display: flex; align-items: center; gap: .75rem;
+    padding: .75rem 1rem;
+    color: #94a3b8;
+    background: transparent;
+    border-radius: 10px;
+    text-align: right;
+    transition: all .2s ease;
+    font-size: .9rem;
+  }
+  .nav-item:hover { background: #1e293b; color: #e2e8f0; }
+  .nav-item.active {
+    background: linear-gradient(135deg, rgba(20,184,166,.18), rgba(14,165,233,.18));
+    color: #5eead4;
+    border-right: 3px solid #14b8a6;
+  }
+  .nav-item .ico { width: 20px; text-align: center; }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #1e293b;
+    display: flex; align-items: center; gap: .75rem;
+    font-size: .85rem; color: #64748b;
+  }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: grid; place-items: center;
+    color: #fff; font-weight: 700;
+  }
+
+  /* Main */
+  .main {
+    padding: 2rem 2.5rem;
+    overflow-y: auto;
+    max-height: 100vh;
+  }
+  .page-header { margin-bottom: 2rem; }
+  .page-header h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: .35rem; }
+  .page-header p { color: #94a3b8; font-size: .9rem; }
+
+  /* ===================== COMPONENTS ===================== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative; overflow: hidden;
+    transition: transform .25s ease, border-color .25s ease;
+  }
+  .stat-card:hover { transform: translateY(-3px); border-color: #334155; }
+  .stat-card::before {
+    content: ""; position: absolute; inset: 0;
+    background: var(--card-glow, transparent);
+    opacity: .12; pointer-events: none;
+  }
+  .stat-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: grid; place-items: center;
+    font-size: 1.3rem; margin-bottom: 1rem;
+    background: var(--icon-bg, rgba(20,184,166,.15));
+    color: var(--icon-color, #5eead4);
+  }
+  .stat-label { color: #94a3b8; font-size: .85rem; margin-bottom: .35rem; }
+  .stat-value { font-size: 2rem; font-weight: 700; }
+  .stat-meta { color: #64748b; font-size: .75rem; margin-top: .35rem; }
+
+  /* Panels */
+  .panel {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .panel-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.25rem;
+    gap: 1rem; flex-wrap: wrap;
+  }
+  .panel-header h2 { font-size: 1.1rem; font-weight: 600; }
+  .panel-header p { color: #64748b; font-size: .8rem; margin-top: .15rem; }
+
+  /* Search */
+  .search-bar {
+    display: flex; gap: .5rem; align-items: center;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: .35rem .35rem .35rem 1rem;
+    min-width: 280px;
+  }
+  .search-bar input {
+    background: transparent; border: none; color: #e2e8f0;
+    flex: 1; font-size: .9rem; padding: .4rem 0;
+  }
+  .search-bar input::placeholder { color: #64748b; }
+  .search-bar .ico { color: #64748b; }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; max-height: 540px; overflow-y: auto; border-radius: 12px; }
+  table { width: 100%; border-collapse: collapse; min-width: 720px; }
+  thead th {
+    text-align: right; padding: .75rem 1rem;
+    font-size: .78rem; font-weight: 600;
+    color: #94a3b8; text-transform: uppercase;
+    background: #0b1220;
+    position: sticky; top: 0; z-index: 1;
+    border-bottom: 1px solid #1e293b;
+  }
+  tbody td {
+    padding: .85rem 1rem;
+    border-bottom: 1px solid #1e293b;
+    font-size: .88rem;
+    vertical-align: middle;
+  }
+  tbody tr { transition: background .15s ease; }
+  tbody tr:hover { background: #1e293b; }
+  .user-cell { display: flex; align-items: center; gap: .75rem; }
+  .user-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: grid; place-items: center; color: #fff; font-weight: 700; font-size: .8rem;
+    flex-shrink: 0;
+  }
+  .user-name { font-weight: 600; }
+  .user-email { color: #64748b; font-size: .75rem; }
+
+  /* Badges */
+  .badge {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .2rem .65rem; border-radius: 999px;
+    font-size: .72rem; font-weight: 600;
+    border: 1px solid;
+  }
+  .badge.active { color: #4ade80; background: rgba(74,222,128,.12); border-color: rgba(74,222,128,.3); }
+  .badge.banned { color: #f87171; background: rgba(248,113,113,.12); border-color: rgba(248,113,113,.3); }
+  .badge.premium { color: #fbbf24; background: rgba(251,191,36,.12); border-color: rgba(251,191,36,.3); }
+  .badge.user { color: #60a5fa; background: rgba(96,165,250,.12); border-color: rgba(96,165,250,.3); }
+  .badge.admin { color: #c084fc; background: rgba(192,132,252,.12); border-color: rgba(192,132,252,.3); }
+
+  /* Action buttons */
+  .actions { display: flex; gap: .35rem; flex-wrap: wrap; }
+  .btn {
+    padding: .4rem .75rem; border-radius: 8px;
+    font-size: .78rem; font-weight: 600;
+    transition: all .15s ease;
+    display: inline-flex; align-items: center; gap: .35rem;
+  }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-ban { background: rgba(248,113,113,.15); color: #f87171; border: 1px solid rgba(248,113,113,.3); }
+  .btn-ban:hover:not(:disabled) { background: rgba(248,113,113,.25); }
+  .btn-unban { background: rgba(74,222,128,.15); color: #4ade80; border: 1px solid rgba(74,222,128,.3); }
+  .btn-unban:hover:not(:disabled) { background: rgba(74,222,128,.25); }
+  .btn-promote { background: rgba(251,191,36,.15); color: #fbbf24; border: 1px solid rgba(251,191,36,.3); }
+  .btn-promote:hover:not(:disabled) { background: rgba(251,191,36,.25); }
+  .btn-demote { background: rgba(96,165,250,.15); color: #60a5fa; border: 1px solid rgba(96,165,250,.3); }
+  .btn-demote:hover:not(:disabled) { background: rgba(96,165,250,.25); }
+  .btn-primary {
+    background: linear-gradient(135deg, #14b8a6, #0ea5e9);
+    color: #0b1220; font-weight: 700;
+    padding: .6rem 1.25rem; border-radius: 10px;
+    display: inline-flex; align-items: center; gap: .5rem;
+    transition: transform .15s ease, box-shadow .15s ease;
+    font-size: .9rem;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(20,184,166,.3); }
+  .btn-danger {
+    background: rgba(248,113,113,.15); color: #f87171;
+    border: 1px solid rgba(248,113,113,.3);
+    padding: .4rem .65rem; border-radius: 8px; font-size: .78rem;
+  }
+  .btn-danger:hover { background: rgba(248,113,113,.25); }
+
+  /* Forms */
+  .form-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  .field { display: flex; flex-direction: column; gap: .4rem; }
+  .field label { font-size: .82rem; color: #cbd5e1; font-weight: 600; }
+  .field input, .field select, .field textarea {
+    background: #1e293b; border: 1px solid #334155;
+    color: #e2e8f0; padding: .65rem .85rem; border-radius: 10px;
+    font-size: .9rem; transition: border-color .2s ease;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: #14b8a6;
+  }
+  .field textarea { resize: vertical; min-height: 90px; }
+  .field small { color: #64748b; font-size: .72rem; }
+
+  .radio-group { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .radio-card {
+    flex: 1; min-width: 130px;
+    background: #1e293b; border: 1px solid #334155;
+    border-radius: 10px; padding: .85rem 1rem;
+    cursor: pointer; transition: all .2s ease;
+    display: flex; align-items: center; gap: .5rem;
+    font-size: .85rem;
+  }
+  .radio-card input { accent-color: #14b8a6; }
+  .radio-card:hover { border-color: #475569; }
+  .radio-card.checked {
+    border-color: #14b8a6;
+    background: rgba(20,184,166,.08);
+    color: #5eead4;
+  }
+
+  /* Toast */
+  .toast-container {
+    position: fixed; top: 1rem; left: 1rem;
+    display: flex; flex-direction: column; gap: .5rem;
+    z-index: 1000;
+  }
+  .toast {
+    background: #1e293b; border: 1px solid #334155;
+    color: #e2e8f0; padding: .85rem 1.25rem;
+    border-radius: 10px; box-shadow: 0 12px 30px rgba(0,0,0,.4);
+    display: flex; align-items: center; gap: .65rem;
+    animation: slideIn .25s ease;
+    min-width: 280px;
+    font-size: .88rem;
+  }
+  .toast.success { border-color: rgba(74,222,128,.5); color: #4ade80; }
+  .toast.error { border-color: rgba(248,113,113,.5); color: #f87171; }
+  .toast.info { border-color: rgba(96,165,250,.5); color: #60a5fa; }
+  @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* Tab content */
+  .tab-content { display: none; animation: fadeIn .25s ease; }
+  .tab-content.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Empty state */
+  .empty {
+    text-align: center; padding: 2rem 1rem;
+    color: #64748b; font-size: .9rem;
+  }
+  .empty .ico { font-size: 2rem; margin-bottom: .5rem; opacity: .5; }
+
+  /* History list */
+  .history-list { display: flex; flex-direction: column; gap: .5rem; max-height: 380px; overflow-y: auto; }
+  .history-item {
+    background: #1e293b; border: 1px solid #334155;
+    padding: .85rem 1rem; border-radius: 10px;
+    display: flex; gap: .85rem; align-items: flex-start;
+  }
+  .history-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: grid; place-items: center;
+    background: rgba(20,184,166,.15); color: #5eead4;
+    flex-shrink: 0;
+  }
+  .history-title { font-weight: 600; font-size: .88rem; margin-bottom: .15rem; }
+  .history-body { color: #94a3b8; font-size: .8rem; }
+  .history-meta { color: #64748b; font-size: .72rem; margin-top: .35rem; }
+
+  /* Promo cards */
+  .promo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+  .promo-card {
+    background: #1e293b; border: 1px solid #334155;
+    border-radius: 14px; padding: 1.25rem;
+    position: relative; overflow: hidden;
+  }
+  .promo-card::after {
+    content: ""; position: absolute; top: -20px; left: -20px;
+    width: 80px; height: 80px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(20,184,166,.2), transparent 70%);
+  }
+  .promo-code {
+    font-family: 'Courier New', monospace;
+    font-size: 1.4rem; font-weight: 800; color: #5eead4;
+    letter-spacing: 2px; margin-bottom: .35rem;
+  }
+  .promo-meta { color: #94a3b8; font-size: .8rem; margin-bottom: .85rem; }
+  .promo-progress {
+    height: 6px; background: #0b1220; border-radius: 999px; overflow: hidden;
+    margin-bottom: .35rem;
+  }
+  .promo-progress-bar { height: 100%; background: linear-gradient(90deg, #14b8a6, #0ea5e9); }
+  .promo-stats { display: flex; justify-content: space-between; font-size: .75rem; color: #64748b; }
+
+  /* Code preview */
+  .code-preview {
+    background: #0b1220; border: 1px dashed #334155;
+    padding: 1rem 1.25rem; border-radius: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 1.3rem; font-weight: 800; color: #5eead4;
+    letter-spacing: 3px; text-align: center;
+    margin: .5rem 0;
+  }
+
+  /* User detail modal-ish info card */
+  .user-info {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem; padding: 1rem;
+    background: #1e293b; border-radius: 10px;
+    margin-bottom: 1rem;
+  }
+  .info-item label { color: #64748b; font-size: .72rem; text-transform: uppercase; }
+  .info-item strong { display: block; color: #e2e8f0; font-size: .92rem; margin-top: .15rem; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: relative; height: auto; flex-direction: row; flex-wrap: wrap; padding: 1rem; }
+    .brand { padding-bottom: 0; margin-bottom: 0; border-bottom: none; }
+    .nav { flex-direction: row; flex-wrap: wrap; flex: 1; }
+    .nav-item { font-size: .8rem; padding: .5rem .75rem; }
+    .sidebar-footer { display: none; }
+    .main { padding: 1.25rem; max-height: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">AD</div>
+      <div class="brand-text">
+        <strong>لوحة التحكم</strong>
+        <small>إدارة المنصة</small>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-tab="dashboard"><span class="ico">📊</span> لوحة الإحصائيات</button>
+      <button class="nav-item" data-tab="users"><span class="ico">👥</span> إدارة المستخدمين</button>
+      <button class="nav-item" data-tab="notifications"><span class="ico">🔔</span> إرسال الإشعارات</button>
+      <button class="nav-item" data-tab="promo"><span class="ico">🎟️</span> الرموز الترويجية</button>
+      <button class="nav-item" data-tab="settings"><span class="ico">⚙️</span> الإعدادات</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="avatar">M</div>
+      <div>
+        <div style="color:#e2e8f0;font-weight:600;font-size:.85rem" id="adminEmail">admin@dashboard.io</div>
+        <div>مدير عام</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <!-- ==================== DASHBOARD ==================== -->
+    <section class="tab-content active" id="tab-dashboard">
+      <div class="page-header">
+        <h1>لوحة الإحصائيات</h1>
+        <p>نظرة عامة على حالة المنصة والمستخدمين والرموز الترويجية</p>
+      </div>
+
+      <div class="stats-grid" id="statsGrid"></div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>آخر الإشعارات المرسلة</h2>
+            <p>قائمة بآخر 5 إشعارات تم إرسالها للمستخدمين</p>
+          </div>
+        </div>
+        <div class="history-list" id="recentNotifications"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>الرموز الترويجية النشطة</h2>
+            <p>الرموز التي لا تزال ضمن حدود التفعيل</p>
+          </div>
+          <button class="btn-primary" onclick="goTo('promo')">
+            <span>＋</span> رمز جديد
+          </button>
+        </div>
+        <div class="promo-grid" id="activePromos"></div>
+      </div>
+    </section>
+
+    <!-- ==================== USERS ==================== -->
+    <section class="tab-content" id="tab-users">
+      <div class="page-header">
+        <h1>إدارة المستخدمين</h1>
+        <p>ابحث عن أي مستخدم عبر معرفه (ID) أو اسمه أو بريده، ثم حظّر أو رقّ أو ألغِ الحظر</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>قائمة المستخدمين</h2>
+            <p>إجمالي: <strong id="usersTotal">0</strong> مستخدم</p>
+          </div>
+          <div class="search-bar">
+            <span class="ico">🔍</span>
+            <input type="text" id="userSearch" placeholder="ابحث بالـ ID أو الاسم أو البريد..." />
+            <button class="btn btn-primary" style="padding:.4rem .85rem;font-size:.78rem" onclick="searchUsers()">بحث</button>
+          </div>
+        </div>
+
+        <div id="userDetail" style="display:none">
+          <div class="panel-header" style="background:#0b1220;padding:1rem;border-radius:12px;margin-bottom:1rem">
+            <h2 style="font-size:.95rem">📋 معلومات المستخدم المختار</h2>
+            <button class="btn-danger" onclick="clearSelectedUser()">✕ إغلاق</button>
+          </div>
+          <div class="user-info" id="userInfoGrid"></div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>المستخدم</th>
+                <th>المعرّف (ID)</th>
+                <th>الدور</th>
+                <th>الحالة</th>
+                <th>الهاتف</th>
+                <th>الدولة</th>
+                <th>تاريخ الانضمام</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== NOTIFICATIONS ==================== -->
+    <section class="tab-content" id="tab-notifications">
+      <div class="page-header">
+        <h1>إرسال الإشعارات</h1>
+        <p>أرسل إشعارا لمستخدم محدد عبر الـ ID، أو لكافة الأعضاء المميزين، أو لجميع المستخدمين</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>إنشاء إشعار جديد</h2>
+            <p>سيتم حفظ الإشعار في سجل المستلمين</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="field" style="grid-column: 1 / -1">
+            <label>عنوان الإشعار</label>
+            <input type="text" id="notifTitle" placeholder="مثال: عرض خاص لكم..." maxlength="80" />
+          </div>
+
+          <div class="field" style="grid-column: 1 / -1">
+            <label>نص الإشعار</label>
+            <textarea id="notifBody" placeholder="اكتب نص الإشعار هنا..."></textarea>
+          </div>
+
+          <div class="field" style="grid-column: 1 / -1">
+            <label>الجمهور المستهدف</label>
+            <div class="radio-group" id="notifAudience">
+              <label class="radio-card checked">
+                <input type="radio" name="audience" value="USER_ID" checked />
+                <span>👤 مستخدم محدد</span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="audience" value="PREMIUM" />
+                <span>⭐ الأعضاء المميزون</span>
+              </label>
+              <label class="radio-card">
+                <input type="radio" name="audience" value="ALL" />
+                <span>🌐 جميع المستخدمين</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field" id="targetIdField">
+            <label>معرّف المستخدم (ID)</label>
+            <input type="text" id="notifTargetId" placeholder="أدخل ID المستخدم" />
+            <small>يمكنك نسخ الـ ID من قسم إدارة المستخدمين</small>
+          </div>
+        </div>
+
+        <div style="margin-top:1.25rem;display:flex;gap:.5rem">
+          <button class="btn-primary" onclick="sendNotification()">📨 إرسال الإشعار</button>
+          <button class="btn-danger" onclick="clearNotifForm()" style="padding:.6rem 1.25rem">إلغاء</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>سجل الإشعارات</h2>
+            <p>آخر الإشعارات المرسلة</p>
+          </div>
+        </div>
+        <div class="history-list" id="notifHistory"></div>
+      </div>
+    </section>
+
+    <!-- ==================== PROMO ==================== -->
+    <section class="tab-content" id="tab-promo">
+      <div class="page-header">
+        <h1>الرموز الترويجية</h1>
+        <p>أنشئ رمزا قصيرا (5-6 أحرف) واستهدف فئة محددة من المستخدمين، مع تحديد عدد المرات القابلة للتفعيل</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>إنشاء رمز ترويجي</h2>
+            <p>اختر فئة المستخدمين، اكتب الرمز، وحدد عدد المستخدمين القادرين على تفعيله</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label>الرمز الترويجي (5-6 أحرف أو أرقام)</label>
+            <input type="text" id="promoCode" placeholder="WELCOME" maxlength="6"
+              oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" />
+            <small>سيظهر بأحرف كبيرة لاتينية وأرقام فقط</small>
+          </div>
+
+          <div class="field">
+            <label>الفئة المستهدفة</label>
+            <select id="promoAudience">
+              <option value="ALL">🌐 جميع المستخدمين</option>
+              <option value="PREMIUM">⭐ الأعضاء المميزون</option>
+              <option value="NEW">🌱 المستخدمون الجدد</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>عدد المستخدمين القادرين على التفعيل</label>
+            <input type="number" id="promoMax" min="1" max="999" placeholder="مثال: 60" />
+            <small>القيمة بين 1 و 999</small>
+          </div>
+
+          <div class="field">
+            <label>نسبة الخصم (%)</label>
+            <input type="number" id="promoDiscount" min="1" max="99" placeholder="10" />
+            <small>افتراضي: 10%</small>
+          </div>
+        </div>
+
+        <div class="code-preview" id="codePreview">______</div>
+
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+          <button class="btn-primary" onclick="createPromo()">🎟️ إنشاء الرمز</button>
+          <button class="btn-danger" onclick="randomCode()" style="padding:.6rem 1.25rem">🎲 توليد عشوائي</button>
+          <button class="btn-danger" onclick="clearPromoForm()" style="padding:.6rem 1.25rem">مسح</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>الرموز الترويجية الحالية</h2>
+            <p>جميع الرموز التي تم إنشاؤها</p>
+          </div>
+        </div>
+        <div class="promo-grid" id="promosGrid"></div>
+      </div>
+    </section>
+
+    <!-- ==================== SETTINGS ==================== -->
+    <section class="tab-content" id="tab-settings">
+      <div class="page-header">
+        <h1>الإعدادات</h1>
+        <p>قم بتحديث بريد المدير وكلمة السر الخاصة بك</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>تغيير البريد الإلكتروني</h2>
+            <p>سيتم استخدام البريد الجديد لتسجيل الدخول القادم</p>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>البريد الحالي</label>
+            <input type="email" id="currentEmail" disabled />
+          </div>
+          <div class="field">
+            <label>البريد الجديد</label>
+            <input type="email" id="newEmail" placeholder="admin@new-domain.io" />
+          </div>
+        </div>
+        <div style="margin-top:1.25rem">
+          <button class="btn-primary" onclick="updateEmail()">💾 حفظ البريد</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>تغيير كلمة السر</h2>
+            <p>اختر كلمة سر قوية لا تقل عن 8 أحرف</p>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>كلمة السر الحالية</label>
+            <input type="password" id="currentPass" placeholder="••••••••" />
+          </div>
+          <div class="field">
+            <label>كلمة السر الجديدة</label>
+            <input type="password" id="newPass" placeholder="••••••••" />
+          </div>
+          <div class="field">
+            <label>تأكيد كلمة السر</label>
+            <input type="password" id="confirmPass" placeholder="••••••••" />
+          </div>
+        </div>
+        <div style="margin-top:1.25rem">
+          <button class="btn-primary" onclick="updatePassword()">🔒 تحديث كلمة السر</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ============================================================
+ *  DATA LAYER (localStorage)
+ * ============================================================ */
+const STORAGE_KEYS = {
+  USERS: 'ad_users',
+  NOTIFS: 'ad_notifications',
+  PROMOS: 'ad_promos',
+  SETTINGS: 'ad_settings',
+};
+
+const SAMPLE_NAMES = [
+  'أحمد', 'سارة', 'محمد', 'فاطمة', 'علي', 'نور', 'خالد', 'مريم',
+  'يوسف', 'هدى', 'إبراهيم', 'ليلى', 'عمر', 'زينب', 'حسن', 'رنا',
+  'كريم', 'دعاء', 'طارق', 'آية', 'ماجد', 'هند', 'بلال', 'صفا',
+];
+const COUNTRIES = ['الجزائر', 'مصر', 'السعودية', 'المغرب', 'تونس', 'الإمارات', 'الأردن', 'العراق'];
+
+function uid() {
+  return 'usr_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+}
+
+function randomPhone() {
+  return '+213' + Math.floor(100000000 + Math.random() * 900000000);
+}
+
+function loadData() {
+  let users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+  if (users.length === 0) {
+    users = [];
+    for (let i = 0; i < 24; i++) {
+      users.push({
+        id: uid(),
+        email: `user${i + 1}@dashboard.io`,
+        name: SAMPLE_NAMES[i] ?? `مستخدم${i + 1}`,
+        role: i < 6 ? 'PREMIUM' : i === 23 ? 'ADMIN' : 'USER',
+        status: i % 9 === 0 ? 'BANNED' : 'ACTIVE',
+        phone: randomPhone(),
+        country: COUNTRIES[i % COUNTRIES.length],
+        joinedAt: new Date(Date.now() - (i + 1) * 86400000 * Math.floor(1 + Math.random() * 5)).toISOString(),
+      });
+    }
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+  }
+
+  let notifs = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTIFS) || '[]');
+  if (notifs.length === 0) {
+    notifs = [
+      {
+        id: 'n1', title: 'مرحبا بك في المنصة',
+        body: 'نرحب بك في لوحة التحكم. شكرا لانضمامك الينا.',
+        channel: 'USER_ID', target: users[0]?.id || '—',
+        sentAt: new Date(Date.now() - 3600000).toISOString(), sentCount: 1,
+      },
+      {
+        id: 'n2', title: 'عرض خاص للأعضاء المميزين',
+        body: 'تم تفعيل عرض حصري لكافة الأعضاء المميزين لمدة 7 أيام.',
+        channel: 'PREMIUM', target: null,
+        sentAt: new Date(Date.now() - 7200000).toISOString(), sentCount: 6,
+      },
+      {
+        id: 'n3', title: 'تحديث جديد للنظام',
+        body: 'تم إطلاق الإصدار 2.0 من المنصة مع العديد من التحسينات.',
+        channel: 'ALL', target: null,
+        sentAt: new Date(Date.now() - 86400000).toISOString(), sentCount: 24,
+      },
+    ];
+    localStorage.setItem(STORAGE_KEYS.NOTIFS, JSON.stringify(notifs));
+  }
+
+  let promos = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROMOS) || '[]');
+  if (promos.length === 0) {
+    promos = [
+      { id: 'p1', code: 'WELCOME', audience: 'ALL', maxUsers: 60, activated: 12, discountPct: 15, createdAt: new Date(Date.now() - 86400000).toISOString() },
+      { id: 'p2', code: 'VIP2024', audience: 'PREMIUM', maxUsers: 30, activated: 5, discountPct: 25, createdAt: new Date(Date.now() - 43200000).toISOString() },
+      { id: 'p3', code: 'NEW50',  audience: 'NEW',   maxUsers: 50, activated: 0,  discountPct: 10, createdAt: new Date(Date.now() - 7200000).toISOString() },
+    ];
+    localStorage.setItem(STORAGE_KEYS.PROMOS, JSON.stringify(promos));
+  }
+
+  let settings = JSON.parse(localStorage.getItem(STORAGE_KEYS.SETTINGS) || 'null');
+  if (!settings) {
+    settings = { email: 'admin@dashboard.io', password: 'Admin@2024' };
+    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+  }
+
+  return { users, notifs, promos, settings };
+}
+
+function saveUsers(users) { localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users)); }
+function saveNotifs(notifs) { localStorage.setItem(STORAGE_KEYS.NOTIFS, JSON.stringify(notifs)); }
+function savePromos(promos) { localStorage.setItem(STORAGE_KEYS.PROMOS, JSON.stringify(promos)); }
+function saveSettings(s) { localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(s)); }
+
+let state = loadData();
+let selectedUserId = null;
+
+/* ============================================================
+ *  TABS
+ * ============================================================ */
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => goTo(btn.dataset.tab));
+});
+function goTo(tab) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.tab-content').forEach(s => s.classList.toggle('active', s.id === 'tab-' + tab));
+  if (tab === 'dashboard') renderDashboard();
+  if (tab === 'users') renderUsers();
+  if (tab === 'notifications') renderNotifHistory();
+  if (tab === 'promo') renderPromos();
+  if (tab === 'settings') renderSettings();
+}
+
+/* ============================================================
+ *  TOAST
+ * ============================================================ */
+function toast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  el.innerHTML = `<span>${icons[type] || 'ℹ'}</span><span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+/* ============================================================
+ *  HELPERS
+ * ============================================================ */
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('ar-EG', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function formatDateTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString('ar-EG', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+function roleBadge(role) {
+  const labels = { PREMIUM: '⭐ مميز', USER: '👤 عادي', ADMIN: '🛡️ مدير' };
+  const cls = role.toLowerCase();
+  return `<span class="badge ${cls}">${labels[role] || role}</span>`;
+}
+function statusBadge(status) {
+  if (status === 'BANNED') return `<span class="badge banned">🚫 محظور</span>`;
+  return `<span class="badge active">✓ نشط</span>`;
+}
+function initials(name) {
+  return (name || '?').trim().slice(0, 1);
+}
+
+/* ============================================================
+ *  DASHBOARD
+ * ============================================================ */
+function renderDashboard() {
+  const total = state.users.length;
+  const banned = state.users.filter(u => u.status === 'BANNED').length;
+  const premium = state.users.filter(u => u.role === 'PREMIUM').length;
+  const active = state.users.filter(u => u.status === 'ACTIVE').length;
+  const notifs = state.notifs.length;
+  const promos = state.promos.length;
+  const promoActive = state.promos.filter(p => p.activated < p.maxUsers).length;
+  const now = Date.now();
+  const sevenDaysAgo = now - 7 * 86400000;
+  const newUsers = state.users.filter(u => new Date(u.joinedAt).getTime() >= sevenDaysAgo).length;
+
+  const cards = [
+    { label: 'إجمالي المستخدمين', value: total, icon: '👥', bg: 'rgba(96,165,250,.15)', color: '#60a5fa', glow: 'rgba(96,165,250,.4)', meta: `+${newUsers} خلال آخر 7 أيام` },
+    { label: 'الأعضاء المميزون', value: premium, icon: '⭐', bg: 'rgba(251,191,36,.15)', color: '#fbbf24', glow: 'rgba(251,191,36,.4)', meta: `${((premium / total) * 100 || 0).toFixed(0)}% من الإجمالي` },
+    { label: 'المستخدمون النشطون', value: active, icon: '✓', bg: 'rgba(74,222,128,.15)', color: '#4ade80', glow: 'rgba(74,222,128,.4)', meta: 'قادرين على استخدام المنصة' },
+    { label: 'المستخدمون المحظورون', value: banned, icon: '🚫', bg: 'rgba(248,113,113,.15)', color: '#f87171', glow: 'rgba(248,113,113,.4)', meta: 'تم إيقاف حسابهم' },
+    { label: 'الإشعارات المرسلة', value: notifs, icon: '🔔', bg: 'rgba(192,132,252,.15)', color: '#c084fc', glow: 'rgba(192,132,252,.4)', meta: 'إجمالي حملات الإشعارات' },
+    { label: 'الرموز الترويجية', value: promos, icon: '🎟️', bg: 'rgba(20,184,166,.15)', color: '#5eead4', glow: 'rgba(20,184,166,.4)', meta: `${promoActive} ما زالت نشطة` },
+  ];
+
+  document.getElementById('statsGrid').innerHTML = cards.map(c => `
+    <div class="stat-card" style="--card-glow:${c.glow}">
+      <div class="stat-icon" style="--icon-bg:${c.bg};--icon-color:${c.color}">${c.icon}</div>
+      <div class="stat-label">${c.label}</div>
+      <div class="stat-value">${c.value}</div>
+      <div class="stat-meta">${c.meta}</div>
+    </div>
+  `).join('');
+
+  // Recent notifications
+  const recent = [...state.notifs].sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt)).slice(0, 5);
+  document.getElementById('recentNotifications').innerHTML = recent.length === 0
+    ? `<div class="empty"><div class="ico">📭</div>لا توجد إشعارات بعد</div>`
+    : recent.map(n => {
+        const aud = n.channel === 'USER_ID' ? 'مستخدم محدد' : n.channel === 'PREMIUM' ? 'أعضاء مميزون' : 'جميع المستخدمين';
+        return `
+          <div class="history-item">
+            <div class="history-icon">🔔</div>
+            <div style="flex:1">
+              <div class="history-title">${n.title}</div>
+              <div class="history-body">${n.body}</div>
+              <div class="history-meta">${aud} · تم الإرسال إلى ${n.sentCount} مستخدم · ${formatDateTime(n.sentAt)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+  // Active promos
+  const activeP = state.promos.filter(p => p.activated < p.maxUsers);
+  document.getElementById('activePromos').innerHTML = activeP.length === 0
+    ? `<div class="empty" style="grid-column:1/-1"><div class="ico">🎟️</div>لا توجد رموز نشطة</div>`
+    : activeP.map(p => promoCardHTML(p)).join('');
+}
+
+/* ============================================================
+ *  USERS
+ * ============================================================ */
+function renderUsers(filteredList) {
+  const list = filteredList || state.users;
+  document.getElementById('usersTotal').textContent = list.length;
+
+  const body = document.getElementById('usersBody');
+  if (list.length === 0) {
+    body.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="ico">🔍</div>لا توجد نتائج مطابقة</div></td></tr>`;
+    return;
+  }
+
+  body.innerHTML = list.map(u => {
+    const isBanned = u.status === 'BANNED';
+    const isPremium = u.role === 'PREMIUM';
+    const isAdmin = u.role === 'ADMIN';
+    return `
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="user-avatar">${initials(u.name)}</div>
+            <div>
+              <div class="user-name">${u.name}</div>
+              <div class="user-email">${u.email}</div>
+            </div>
+          </div>
+        </td>
+        <td><code style="color:#94a3b8;font-size:.78rem">${u.id}</code></td>
+        <td>${roleBadge(u.role)}</td>
+        <td>${statusBadge(u.status)}</td>
+        <td dir="ltr" style="text-align:right">${u.phone || '—'}</td>
+        <td>${u.country || '—'}</td>
+        <td>${formatDate(u.joinedAt)}</td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-ban" ${isBanned || isAdmin ? 'disabled' : ''} onclick="banUser('${u.id}')" title="حظر">🚫 حظر</button>
+            <button class="btn btn-unban" ${!isBanned ? 'disabled' : ''} onclick="unbanUser('${u.id}')" title="رفع الحظر">✓ رفع الحظر</button>
+            <button class="btn btn-promote" ${isPremium || isAdmin ? 'disabled' : ''} onclick="promoteUser('${u.id}')" title="ترقية">⭐ ترقية</button>
+            <button class="btn btn-demote" ${!isPremium || isAdmin ? 'disabled' : ''} onclick="demoteUser('${u.id}')" title="نزع">↓ نزع</button>
+            <button class="btn btn-primary" style="padding:.4rem .65rem;font-size:.72rem" onclick="selectUser('${u.id}')" title="عرض">👁️ عرض</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function searchUsers() {
+  const q = document.getElementById('userSearch').value.trim().toLowerCase();
+  if (!q) {
+    renderUsers();
+    return;
+  }
+  const found = state.users.filter(u =>
+    u.id.toLowerCase() === q ||
+    u.id.toLowerCase().includes(q) ||
+    u.name.toLowerCase().includes(q) ||
+    u.email.toLowerCase().includes(q) ||
+    (u.phone || '').includes(q)
+  );
+  if (found.length === 0) toast('لا يوجد مستخدم مطابق', 'error');
+  else if (q.startsWith('usr_')) toast(`تم العثور على ${found.length} مستخدم`, 'success');
+  renderUsers(found);
+}
+
+document.getElementById('userSearch').addEventListener('input', function() {
+  if (this.value === '') renderUsers();
+});
+
+function banUser(id) {
+  const u = state.users.find(x => x.id === id);
+  if (!u) return;
+  u.status = 'BANNED';
+  saveUsers(state.users);
+  toast(`تم حظر المستخدم ${u.name}`, 'success');
+  renderUsers();
+}
+function unbanUser(id) {
+  const u = state.users.find(x => x.id === id);
+  if (!u) return;
+  u.status = 'ACTIVE';
+  saveUsers(state.users);
+  toast(`تم رفع الحظر عن ${u.name}`, 'success');
+  renderUsers();
+}
+function promoteUser(id) {
+  const u = state.users.find(x => x.id === id);
+  if (!u) return;
+  u.role = 'PREMIUM';
+  saveUsers(state.users);
+  toast(`تمت ترقية ${u.name} إلى عضوية مميزة`, 'success');
+  renderUsers();
+}
+function demoteUser(id) {
+  const u = state.users.find(x => x.id === id);
+  if (!u) return;
+  u.role = 'USER';
+  saveUsers(state.users);
+  toast(`تم نزع العضوية المميزة عن ${u.name}`, 'success');
+  renderUsers();
+}
+
+function selectUser(id) {
+  const u = state.users.find(x => x.id === id);
+  if (!u) return;
+  selectedUserId = id;
+  document.getElementById('userDetail').style.display = 'block';
+  document.getElementById('userInfoGrid').innerHTML = `
+    <div class="info-item"><label>المعرّف</label><strong dir="ltr" style="text-align:right"><code>${u.id}</code></strong></div>
+    <div class="info-item"><label>الاسم الكامل</label><strong>${u.name}</strong></div>
+    <div class="info-item"><label>البريد الإلكتروني</label><strong dir="ltr" style="text-align:right">${u.email}</strong></div>
+    <div class="info-item"><label>الهاتف</label><strong dir="ltr" style="text-align:right">${u.phone || '—'}</strong></div>
+    <div class="info-item"><label>الدولة</label><strong>${u.country || '—'}</strong></div>
+    <div class="info-item"><label>الدور</label><strong>${roleBadge(u.role)}</strong></div>
+    <div class="info-item"><label>الحالة</label><strong>${statusBadge(u.status)}</strong></div>
+    <div class="info-item"><label>تاريخ الانضمام</label><strong>${formatDate(u.joinedAt)}</strong></div>
+  `;
+  // scroll into view
+  document.getElementById('userDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function clearSelectedUser() {
+  selectedUserId = null;
+  document.getElementById('userDetail').style.display = 'none';
+}
+
+/* ============================================================
+ *  NOTIFICATIONS
+ * ============================================================ */
+document.querySelectorAll('#notifAudience .radio-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('#notifAudience .radio-card').forEach(c => c.classList.remove('checked'));
+    card.classList.add('checked');
+    card.querySelector('input').checked = true;
+    const val = card.querySelector('input').value;
+    document.getElementById('targetIdField').style.display = val === 'USER_ID' ? 'flex' : 'none';
+  });
+});
+
+function sendNotification() {
+  const title = document.getElementById('notifTitle').value.trim();
+  const body = document.getElementById('notifBody').value.trim();
+  const audience = document.querySelector('input[name="audience"]:checked').value;
+  const targetId = document.getElementById('notifTargetId').value.trim();
+
+  if (!title) { toast('يرجى إدخال عنوان الإشعار', 'error'); return; }
+  if (!body) { toast('يرجى إدخال نص الإشعار', 'error'); return; }
+
+  let sentCount = 0;
+  if (audience === 'USER_ID') {
+    if (!targetId) { toast('يرجى إدخال معرّف المستخدم', 'error'); return; }
+    const target = state.users.find(u => u.id === targetId);
+    if (!target) { toast('لا يوجد مستخدم بهذا المعرّف', 'error'); return; }
+    sentCount = 1;
+  } else if (audience === 'PREMIUM') {
+    sentCount = state.users.filter(u => u.role === 'PREMIUM' && u.status === 'ACTIVE').length;
+    if (sentCount === 0) { toast('لا يوجد أعضاء مميزون نشطون', 'error'); return; }
+  } else {
+    sentCount = state.users.filter(u => u.status === 'ACTIVE').length;
+    if (sentCount === 0) { toast('لا يوجد مستخدمون نشطون', 'error'); return; }
+  }
+
+  const notif = {
+    id: 'n' + Date.now(),
+    title, body, channel: audience,
+    target: audience === 'USER_ID' ? targetId : null,
+    sentAt: new Date().toISOString(),
+    sentCount,
+  };
+  state.notifs.unshift(notif);
+  saveNotifs(state.notifs);
+
+  const audLabels = { USER_ID: 'مستخدم محدد', PREMIUM: 'أعضاء مميزون', ALL: 'جميع المستخدمين' };
+  toast(`تم إرسال الإشعار إلى ${sentCount} مستخدم (${audLabels[audience]})`, 'success');
+  clearNotifForm();
+  renderNotifHistory();
+}
+
+function clearNotifForm() {
+  document.getElementById('notifTitle').value = '';
+  document.getElementById('notifBody').value = '';
+  document.getElementById('notifTargetId').value = '';
+}
+
+function renderNotifHistory() {
+  const list = [...state.notifs].sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
+  document.getElementById('notifHistory').innerHTML = list.length === 0
+    ? `<div class="empty"><div class="ico">📭</div>لا توجد إشعارات بعد</div>`
+    : list.slice(0, 20).map(n => {
+        const aud = n.channel === 'USER_ID' ? '👤 مستخدم محدد' : n.channel === 'PREMIUM' ? '⭐ أعضاء مميزون' : '🌐 جميع المستخدمين';
+        return `
+          <div class="history-item">
+            <div class="history-icon">🔔</div>
+            <div style="flex:1">
+              <div class="history-title">${n.title}</div>
+              <div class="history-body">${n.body}</div>
+              <div class="history-meta">${aud} · ${n.sentCount} مستلم · ${formatDateTime(n.sentAt)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+}
+
+/* ============================================================
+ *  PROMO
+ * ============================================================ */
+document.getElementById('promoCode').addEventListener('input', function() {
+  const v = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  this.value = v;
+  document.getElementById('codePreview').textContent = v.padEnd(5, '_').slice(0, 6) || '______';
+  if (v.length === 5 || v.length === 6) {
+    document.getElementById('codePreview').textContent = v;
+  } else {
+    document.getElementById('codePreview').textContent = (v + '______').slice(0, 6);
+  }
+});
+
+function randomCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  const len = 5 + Math.floor(Math.random() * 2);
+  for (let i = 0; i < len; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  document.getElementById('promoCode').value = code;
+  document.getElementById('codePreview').textContent = code;
+  toast('تم توليد رمز عشوائي', 'info');
+}
+
+function clearPromoForm() {
+  document.getElementById('promoCode').value = '';
+  document.getElementById('promoMax').value = '';
+  document.getElementById('promoDiscount').value = '';
+  document.getElementById('codePreview').textContent = '______';
+}
+
+function createPromo() {
+  const code = document.getElementById('promoCode').value.trim().toUpperCase();
+  const audience = document.getElementById('promoAudience').value;
+  const maxUsers = parseInt(document.getElementById('promoMax').value, 10);
+  const discountPct = parseInt(document.getElementById('promoDiscount').value, 10) || 10;
+
+  if (!/^[A-Z0-9]{5,6}$/.test(code)) {
+    toast('الرمز يجب أن يحتوي على 5 أو 6 أحرف وأرقام لاتينية فقط', 'error');
+    return;
+  }
+  if (state.promos.some(p => p.code === code)) {
+    toast('هذا الرمز موجود بالفعل', 'error');
+    return;
+  }
+  if (!maxUsers || maxUsers < 1 || maxUsers > 999) {
+    toast('عدد المستخدمين يجب أن يكون بين 1 و 999', 'error');
+    return;
+  }
+
+  const promo = {
+    id: 'p' + Date.now(),
+    code, audience, maxUsers, activated: 0,
+    discountPct: Math.min(99, Math.max(1, discountPct)),
+    createdAt: new Date().toISOString(),
+  };
+  state.promos.unshift(promo);
+  savePromos(state.promos);
+
+  toast(`تم إنشاء الرمز ${code} بنجاح`, 'success');
+  clearPromoForm();
+  renderPromos();
+}
+
+function deletePromo(id) {
+  const p = state.promos.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`هل تريد حذف الرمز ${p.code}؟`)) return;
+  state.promos = state.promos.filter(x => x.id !== id);
+  savePromos(state.promos);
+  toast(`تم حذف الرمز ${p.code}`, 'info');
+  renderPromos();
+}
+
+function promoCardHTML(p) {
+  const pct = Math.min(100, Math.round((p.activated / p.maxUsers) * 100));
+  const audLabels = { ALL: '🌐 جميع المستخدمين', PREMIUM: '⭐ الأعضاء المميزون', NEW: '🌱 المستخدمون الجدد' };
+  const isFull = p.activated >= p.maxUsers;
+  return `
+    <div class="promo-card">
+      <div class="promo-code">${p.code}</div>
+      <div class="promo-meta">${audLabels[p.audience]} · خصم ${p.discountPct}%</div>
+      <div class="promo-progress"><div class="promo-progress-bar" style="width:${pct}%"></div></div>
+      <div class="promo-stats">
+        <span>${p.activated} / ${p.maxUsers} تفعيل</span>
+        <span>${isFull ? 'مكتمل ✓' : pct + '%'}</span>
+      </div>
+      <div style="margin-top:.85rem;display:flex;justify-content:space-between;align-items:center">
+        <small style="color:#64748b;font-size:.72rem">${formatDate(p.createdAt)}</small>
+        <button class="btn-danger" onclick="deletePromo('${p.id}')">🗑️ حذف</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderPromos() {
+  const grid = document.getElementById('promosGrid');
+  if (state.promos.length === 0) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="ico">🎟️</div>لا توجد رموز ترويجية بعد</div>`;
+    return;
+  }
+  grid.innerHTML = state.promos.map(promoCardHTML).join('');
+}
+
+/* ============================================================
+ *  SETTINGS
+ * ============================================================ */
+function renderSettings() {
+  document.getElementById('currentEmail').value = state.settings.email;
+  document.getElementById('adminEmail').textContent = state.settings.email;
+}
+
+function updateEmail() {
+  const newEmail = document.getElementById('newEmail').value.trim();
+  if (!newEmail) { toast('يرجى إدخال البريد الجديد', 'error'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) { toast('صيغة بريد غير صحيحة', 'error'); return; }
+  state.settings.email = newEmail;
+  saveSettings(state.settings);
+  document.getElementById('newEmail').value = '';
+  renderSettings();
+  toast('تم تحديث البريد الإلكتروني', 'success');
+}
+
+function updatePassword() {
+  const current = document.getElementById('currentPass').value;
+  const next = document.getElementById('newPass').value;
+  const confirm = document.getElementById('confirmPass').value;
+
+  if (!current || !next || !confirm) { toast('يرجى ملء جميع الحقول', 'error'); return; }
+  if (current !== state.settings.password) { toast('كلمة السر الحالية غير صحيحة', 'error'); return; }
+  if (next.length < 8) { toast('كلمة السر الجديدة يجب ألا تقل عن 8 أحرف', 'error'); return; }
+  if (next !== confirm) { toast('كلمتا السر غير متطابقتين', 'error'); return; }
+
+  state.settings.password = next;
+  saveSettings(state.settings);
+  document.getElementById('currentPass').value = '';
+  document.getElementById('newPass').value = '';
+  document.getElementById('confirmPass').value = '';
+  toast('تم تحديث كلمة السر بنجاح', 'success');
+}
+
+/* ============================================================
+ *  INIT
+ * ============================================================ */
+renderDashboard();
+</script>
+</body>
+</html>
