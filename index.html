@@ -191,6 +191,16 @@
   }
   .sidebar-footer .info-name { color: var(--sidebar-text); font-weight: 600; font-size: .82rem; }
   .sidebar-footer .info-role { color: var(--sidebar-muted); font-size: .72rem; }
+  .logout-btn {
+    width: 32px; height: 32px; border-radius: 6px;
+    background: transparent; color: var(--sidebar-muted);
+    display: grid; place-items: center;
+    border: 1px solid var(--sidebar-border);
+    transition: all .15s ease;
+    flex-shrink: 0;
+  }
+  .logout-btn:hover { background: #dc2626; color: #fff; border-color: #dc2626; }
+  .logout-btn .icon { width: 15px; height: 15px; }
 
   /* Main */
   .main {
@@ -204,35 +214,78 @@
   .page-header-text p { color: var(--text-muted); font-size: .88rem; }
   .page-header-actions { display: flex; gap: .5rem; align-items: center; }
 
+  /* ===================== LOGIN ===================== */
+  .login-overlay {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: grid; place-items: center;
+    z-index: 999;
+    padding: 1.5rem;
+  }
+  .login-overlay.hidden { display: none; }
+  .login-card {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2.25rem;
+    width: 100%; max-width: 380px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.06);
+  }
+  .login-logo {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: var(--accent); color: #fff;
+    display: grid; place-items: center;
+    font-weight: 700; font-size: 1.4rem;
+    margin: 0 auto 1.25rem;
+    box-shadow: 0 8px 24px var(--accent-soft);
+  }
+  .login-title { font-size: 1.35rem; font-weight: 700; text-align: center; margin-bottom: .35rem; letter-spacing: -0.02em; }
+  .login-subtitle { color: var(--text-muted); font-size: .82rem; text-align: center; margin-bottom: 1.75rem; }
+  .login-form { display: flex; flex-direction: column; gap: .85rem; }
+  .login-hint {
+    margin-top: 1rem; padding: .65rem .85rem;
+    background: var(--accent-soft); color: var(--accent);
+    border-radius: 6px; font-size: .75rem; text-align: center;
+    border: 1px dashed var(--accent);
+  }
+
   /* ===================== COMPONENTS ===================== */
   .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.75rem;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: .65rem;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 600px) {
+    .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   .stat-card {
     background: var(--bg-elev);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.25rem;
+    border-radius: 8px;
+    padding: .85rem;
     transition: all .2s ease;
     position: relative;
+    min-width: 0;
   }
   .stat-card:hover {
     border-color: var(--accent);
     transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(0,0,0,.06);
+    box-shadow: 0 4px 12px rgba(0,0,0,.06);
   }
   .stat-icon {
-    width: 38px; height: 38px; border-radius: 8px;
+    width: 28px; height: 28px; border-radius: 6px;
     background: var(--accent-soft); color: var(--accent);
     display: grid; place-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: .55rem;
   }
-  .stat-label { color: var(--text-muted); font-size: .78rem; margin-bottom: .25rem; text-transform: uppercase; letter-spacing: .04em; font-weight: 500; }
-  .stat-value { font-size: 1.85rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; }
-  .stat-meta { color: var(--text-faint); font-size: .72rem; margin-top: .35rem; }
+  .stat-icon .icon { width: 16px; height: 16px; }
+  .stat-label { color: var(--text-muted); font-size: .68rem; margin-bottom: .15rem; text-transform: uppercase; letter-spacing: .04em; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat-value { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+  .stat-meta { color: var(--text-faint); font-size: .65rem; margin-top: .2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* Panels */
   .panel {
@@ -543,6 +596,31 @@
 <div class="app">
   <!-- Sidebar -->
   <aside class="sidebar">
+    <!-- Login overlay (shown when logged out) -->
+    <div class="login-overlay" id="loginOverlay">
+      <div class="login-card">
+        <div class="login-logo">AD</div>
+        <div class="login-title">Admin Panel</div>
+        <div class="login-subtitle">Sign in to access the dashboard</div>
+        <form class="login-form" id="loginForm" onsubmit="return doLogin(event)">
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="loginEmail" placeholder="admin@dashboard.io" autocomplete="username" required />
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required />
+          </div>
+          <button type="submit" class="btn-primary" style="justify-content:center;width:100%;margin-top:.25rem">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Sign In
+          </button>
+        </form>
+        <div class="login-hint">
+          Default: <strong>admin@dashboard.io</strong> / <strong>Admin@2024</strong>
+        </div>
+      </div>
+    </div>
     <div class="brand">
       <div class="brand-logo">AD</div>
       <div class="brand-text">
@@ -587,10 +665,13 @@
 
     <div class="sidebar-footer">
       <div class="avatar">M</div>
-      <div>
+      <div style="flex:1;min-width:0">
         <div class="info-name" id="adminEmail">admin@dashboard.io</div>
         <div class="info-role">Administrator</div>
       </div>
+      <button class="logout-btn" onclick="doLogout()" title="Sign out">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
     </div>
   </aside>
 
@@ -1024,6 +1105,47 @@ function saveSettings(s) { localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stri
 
 let state = loadData();
 let selectedUserId = null;
+
+/* ============================================================
+ *  AUTH
+ * ============================================================ */
+function isLoggedIn() {
+  return localStorage.getItem('ad_session') === 'yes';
+}
+function showLogin() {
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  // Pre-fill email field with stored value for convenience
+  const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.SETTINGS) || '{}');
+  if (stored.email) document.getElementById('loginEmail').value = stored.email;
+  setTimeout(() => document.getElementById('loginPassword').focus(), 50);
+}
+function hideLogin() {
+  document.getElementById('loginOverlay').classList.add('hidden');
+}
+function doLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPassword').value;
+  if (email !== state.settings.email) {
+    toast('Invalid email', 'error'); return false;
+  }
+  if (pass !== state.settings.password) {
+    toast('Invalid password', 'error'); return false;
+  }
+  localStorage.setItem('ad_session', 'yes');
+  hideLogin();
+  toast('Welcome back, Administrator', 'success');
+  renderDashboard();
+  return false;
+}
+function doLogout() {
+  if (!confirm('Sign out of the dashboard?')) return;
+  localStorage.removeItem('ad_session');
+  // Reset login form
+  document.getElementById('loginPassword').value = '';
+  showLogin();
+  toast('Signed out successfully', 'info');
+}
 
 /* ============================================================
  *  ICON SVGs (reusable)
@@ -1495,7 +1617,12 @@ function updatePassword() {
 /* ============================================================
  *  INIT
  * ============================================================ */
-renderDashboard();
+if (isLoggedIn()) {
+  hideLogin();
+  renderDashboard();
+} else {
+  showLogin();
+}
 </script>
 </body>
 </html>
