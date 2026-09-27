@@ -863,6 +863,103 @@
     box-shadow: 0 20px 60px rgba(0,0,0,.4);
   }
 
+  /* ===================== LOADING SPINNER ===================== */
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .6s linear infinite;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .btn-primary.loading, .btn-outline.loading {
+    opacity: .75; pointer-events: none;
+  }
+  .btn-content { display: inline-flex; align-items: center; gap: .45rem; }
+
+  /* ===================== CONFIRMATION CARD MODAL ===================== */
+  .confirm-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.6);
+    backdrop-filter: blur(2px);
+    z-index: 4500;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 1.5rem;
+    overflow-y: auto;
+  }
+  .confirm-overlay.show { display: flex; animation: fadeIn .15s ease; }
+  .confirm-card {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.85rem 1.75rem 1.5rem;
+    width: 100%; max-width: 380px;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0,0,0,.3);
+    position: relative;
+    animation: popIn .2s ease;
+  }
+  @keyframes popIn { from { opacity: 0; transform: scale(.95); } to { opacity: 1; transform: scale(1); } }
+  .confirm-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    display: grid; place-items: center;
+    margin: 0 auto 1rem;
+    background: var(--accent-soft); color: var(--accent);
+  }
+  .confirm-icon.danger { background: rgba(220,38,38,.12); color: var(--danger); }
+  .confirm-icon.success { background: rgba(22,163,74,.12); color: var(--success); }
+  .confirm-icon.warning { background: rgba(217,119,6,.12); color: var(--warning); }
+  .confirm-icon .icon { width: 26px; height: 26px; }
+  .confirm-title {
+    font-size: 1.15rem; font-weight: 700; margin-bottom: .35rem;
+  }
+  .confirm-message {
+    color: var(--text-muted); font-size: .85rem; margin-bottom: 1.5rem; line-height: 1.5;
+  }
+  .confirm-recipient {
+    background: var(--bg-soft); border: 1px solid var(--border);
+    border-radius: 8px; padding: .55rem .8rem;
+    display: flex; align-items: center; gap: .55rem;
+    margin-bottom: 1.25rem; text-align: left;
+  }
+  .confirm-recipient .user-avatar {
+    width: 28px; height: 28px; font-size: .7rem;
+  }
+  .confirm-recipient-info { flex: 1; min-width: 0; }
+  .confirm-recipient-info strong { font-size: .82rem; display: block; }
+  .confirm-recipient-info small { color: var(--text-muted); font-size: .7rem; }
+  .confirm-actions {
+    display: flex; gap: .5rem; justify-content: center;
+  }
+  .confirm-actions button { flex: 1; justify-content: center; }
+  .btn-confirm-danger {
+    background: var(--danger); color: #fff; border: 1px solid var(--danger);
+    padding: .55rem 1rem; border-radius: 6px;
+    font-size: .85rem; font-weight: 600;
+    display: inline-flex; align-items: center; gap: .45rem;
+    transition: all .12s ease; cursor: pointer;
+  }
+  .btn-confirm-danger:hover { background: #b91c1c; }
+  .btn-confirm-success {
+    background: var(--success); color: #fff; border: 1px solid var(--success);
+    padding: .55rem 1rem; border-radius: 6px;
+    font-size: .85rem; font-weight: 600;
+    display: inline-flex; align-items: center; gap: .45rem;
+    transition: all .12s ease; cursor: pointer;
+  }
+  .btn-confirm-success:hover { background: #15803d; }
+  .btn-confirm-warning {
+    background: var(--warning); color: #fff; border: 1px solid var(--warning);
+    padding: .55rem 1rem; border-radius: 6px;
+    font-size: .85rem; font-weight: 600;
+    display: inline-flex; align-items: center; gap: .45rem;
+    transition: all .12s ease; cursor: pointer;
+  }
+  .btn-confirm-warning:hover { background: #b45309; }
+
   /* ===================== SEND MESSAGE MODAL ===================== */
   .modal-overlay {
     position: fixed; inset: 0;
@@ -975,9 +1072,11 @@
         <label>Password</label>
         <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required />
       </div>
-      <button type="submit" class="btn-primary" style="justify-content:center;width:100%;margin-top:.25rem">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-        Sign In
+      <button type="submit" class="btn-primary" id="loginSubmit" style="justify-content:center;width:100%;margin-top:.25rem">
+        <span class="btn-content" id="loginBtnContent">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          <span>Sign In</span>
+        </span>
       </button>
     </form>
     <div class="login-hint">
@@ -1546,6 +1645,32 @@
   <img id="imageModalImg" src="" alt="Attachment preview" />
 </div>
 
+<!-- Confirmation card modal -->
+<div class="confirm-overlay" id="confirmModal" onclick="if(event.target===this) cancelConfirm()">
+  <div class="confirm-card">
+    <div class="confirm-icon" id="confirmIcon"></div>
+    <div class="confirm-title" id="confirmTitle">Confirm action?</div>
+    <div class="confirm-message" id="confirmMessage">Are you sure you want to proceed?</div>
+    <div class="confirm-recipient" id="confirmRecipient" style="display:none">
+      <div class="user-avatar" id="confirmRecipientAvatar">?</div>
+      <div class="confirm-recipient-info">
+        <strong id="confirmRecipientName">—</strong>
+        <small id="confirmRecipientEmail">—</small>
+      </div>
+    </div>
+    <div class="confirm-actions">
+      <button class="btn-outline" onclick="cancelConfirm()" id="confirmCancelBtn">
+        <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancel
+      </button>
+      <button id="confirmActionBtn" class="btn-primary" onclick="executeConfirm()">
+        <svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Confirm
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Send message modal -->
 <div class="modal-overlay" id="sendMessageModal" onclick="if(event.target===this) closeSendMessageModal()">
   <div class="modal-card">
@@ -1831,28 +1956,113 @@ function hideLogin() {
 }
 function doLogin(e) {
   e.preventDefault();
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass = document.getElementById('loginPassword').value;
-  if (email !== state.settings.email) {
-    toast('Invalid email', 'error'); return false;
-  }
-  if (pass !== state.settings.password) {
-    toast('Invalid password', 'error'); return false;
-  }
-  localStorage.setItem('ad_session', 'yes');
-  hideLogin();
-  toast('Welcome back, Administrator', 'success');
-  renderDashboard();
+  const submitBtn = document.getElementById('loginSubmit');
+  const contentEl = document.getElementById('loginBtnContent');
+  // Show loading spinner
+  submitBtn.classList.add('loading');
+  const originalContent = contentEl.innerHTML;
+  contentEl.innerHTML = '<span class="spinner"></span><span>Signing in...</span>';
+
+  setTimeout(() => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPassword').value;
+    if (email !== state.settings.email) {
+      submitBtn.classList.remove('loading');
+      contentEl.innerHTML = originalContent;
+      toast('Invalid email', 'error');
+      return;
+    }
+    if (pass !== state.settings.password) {
+      submitBtn.classList.remove('loading');
+      contentEl.innerHTML = originalContent;
+      toast('Invalid password', 'error');
+      return;
+    }
+    localStorage.setItem('ad_session', 'yes');
+    hideLogin();
+    toast('Welcome back, Administrator', 'success');
+    renderDashboard();
+    // Reset button state for next time
+    submitBtn.classList.remove('loading');
+    contentEl.innerHTML = originalContent;
+  }, 900); // Simulate network delay
   return false;
 }
 function doLogout() {
-  if (!confirm('Sign out of the dashboard?')) return;
-  localStorage.removeItem('ad_session');
-  // Reset login form
-  document.getElementById('loginPassword').value = '';
-  showLogin();
-  toast('Signed out successfully', 'info');
+  showConfirmCard({
+    title: 'Sign out of dashboard?',
+    message: 'You will need to sign in again to access the admin panel.',
+    icon: 'info',
+    confirmText: 'Sign Out',
+    confirmClass: 'btn-primary',
+    onConfirm: () => {
+      localStorage.removeItem('ad_session');
+      document.getElementById('loginPassword').value = '';
+      showLogin();
+      toast('Signed out successfully', 'info');
+    }
+  });
 }
+
+/* ============================================================
+ *  CONFIRMATION CARD SYSTEM
+ * ============================================================ */
+let pendingConfirmAction = null;
+
+function showConfirmCard({ title, message, icon = 'info', confirmText = 'Confirm', confirmClass = 'btn-primary', onConfirm, user = null }) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMessage').textContent = message;
+
+  const iconEl = document.getElementById('confirmIcon');
+  const iconKey = icon === 'danger' ? 'ban' : icon === 'success' ? 'check' : icon === 'warning' ? 'crown' : 'info';
+  iconEl.className = 'confirm-icon ' + icon;
+  iconEl.innerHTML = ICONS[iconKey];
+
+  // User recipient card
+  const recipientEl = document.getElementById('confirmRecipient');
+  if (user) {
+    recipientEl.style.display = 'flex';
+    document.getElementById('confirmRecipientAvatar').textContent = initials(user.name);
+    document.getElementById('confirmRecipientName').textContent = user.name;
+    document.getElementById('confirmRecipientEmail').textContent = user.email;
+  } else {
+    recipientEl.style.display = 'none';
+  }
+
+  // Confirm button
+  const confirmBtn = document.getElementById('confirmActionBtn');
+  confirmBtn.innerHTML = (icon === 'danger' ? ICONS.ban : icon === 'success' ? ICONS.check : icon === 'warning' ? ICONS.crown : ICONS.check) + '<span>' + confirmText + '</span>';
+  confirmBtn.className = '';
+  if (icon === 'danger') confirmBtn.classList.add('btn-confirm-danger');
+  else if (icon === 'success') confirmBtn.classList.add('btn-confirm-success');
+  else if (icon === 'warning') confirmBtn.classList.add('btn-confirm-warning');
+  else confirmBtn.classList.add('btn-primary');
+
+  pendingConfirmAction = onConfirm;
+  document.getElementById('confirmModal').classList.add('show');
+}
+
+function executeConfirm() {
+  document.getElementById('confirmModal').classList.remove('show');
+  if (pendingConfirmAction) {
+    const action = pendingConfirmAction;
+    pendingConfirmAction = null;
+    action();
+  }
+}
+
+function cancelConfirm() {
+  document.getElementById('confirmModal').classList.remove('show');
+  pendingConfirmAction = null;
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('confirmModal').classList.contains('show')) {
+      cancelConfirm();
+    }
+  }
+});
 
 /* ============================================================
  *  ICON SVGs (reusable)
@@ -2109,104 +2319,93 @@ function setUserLevel(userId, level) {
   if (!u) return;
   const oldLevel = u.level || 0;
   if (oldLevel === level) { closeAllDropdowns(); return; }
-  u.level = level;
-  if (level === 0) {
-    u.promotedAt = null;
-  } else {
-    u.promotedAt = new Date().toISOString();
-    if (!u.promotionHistory) u.promotionHistory = [];
-    u.promotionHistory.push({
-      level,
-      at: u.promotedAt,
-      note: level > oldLevel ? `Promoted from Level ${oldLevel} to Level ${level}` : `Set to Level ${level}`,
-    });
-  }
-  saveUsers(state.users);
-  const label = level === 0 ? 'Normal user' : `Level ${level}`;
-  toast(`${u.name} is now ${label}`, 'success');
-  closeAllDropdowns();
-  renderUsers();
-  // Update detail view if open
-  if (selectedUserId === userId && document.getElementById('userDetail').style.display !== 'none') {
-    selectUser(userId);
-  }
+
+  const label = level === 0 ? 'Normal User' : `Level ${level}${level === 3 ? ' (Max)' : ''}`;
+  const actionVerb = level === 0 ? 'demote' : (level > oldLevel ? 'promote' : 'set');
+  const iconType = level === 0 ? 'info' : 'warning';
+
+  showConfirmCard({
+    title: level === 0 ? 'Demote to Normal User?' : `Promote to ${label}?`,
+    message: level === 0
+      ? `${u.name} will lose all promoted privileges. The user will receive a notification about this change.`
+      : `You are about to ${actionVerb} ${u.name} from Level ${oldLevel} to ${label}. The user will receive a notification about this promotion.`,
+    icon: iconType,
+    confirmText: level === 0 ? 'Demote' : 'Promote',
+    user: u,
+    onConfirm: () => {
+      u.level = level;
+      if (level === 0) {
+        u.promotedAt = null;
+      } else {
+        u.promotedAt = new Date().toISOString();
+        if (!u.promotionHistory) u.promotionHistory = [];
+        u.promotionHistory.push({
+          level,
+          at: u.promotedAt,
+          note: level > oldLevel ? `Promoted from Level ${oldLevel} to Level ${level}` : `Set to Level ${level}`,
+        });
+      }
+      saveUsers(state.users);
+      // Create a notification FOR the user about the level change
+      state.notifs.unshift({
+        id: 'n' + Date.now(),
+        title: level === 0 ? 'Your account level has been reset' : `You've been promoted to ${label}!`,
+        body: level === 0
+          ? `Hello ${u.name}, your account has been set back to Normal User status. Contact support for more details.`
+          : `Congratulations ${u.name}! You have been promoted to ${label}. Enjoy your new privileges!`,
+        channel: 'USER_ID',
+        target: u.id,
+        sentAt: new Date().toISOString(),
+        sentCount: 1,
+      });
+      saveNotifs(state.notifs);
+      toast(`${u.name} is now ${label}`, 'success');
+      closeAllDropdowns();
+      renderUsers();
+      if (selectedUserId === userId && document.getElementById('userDetail').style.display !== 'none') {
+        selectUser(userId);
+      }
+    }
+  });
 }
 
 /* ============================================================
- *  SEND MESSAGE MODAL
+ *  SEND MESSAGE — opens Support chat with this user
  * ============================================================ */
-let messageTargetId = null;
-
 function openSendMessageModal(userId) {
   const u = state.users.find(x => x.id === userId);
   if (!u) {
     toast('User not found', 'error');
     return;
   }
-  messageTargetId = userId;
-  document.getElementById('modalRecipientAvatar').textContent = initials(u.name);
-  document.getElementById('modalRecipientName').textContent = u.name;
-  document.getElementById('modalRecipientEmail').textContent = u.email;
-  document.getElementById('modalRecipientId').textContent = u.id;
-  document.getElementById('sendMessageTitle').value = '';
-  document.getElementById('sendMessageBody').value = '';
-  document.getElementById('sendMessageModal').classList.add('show');
-  setTimeout(() => document.getElementById('sendMessageTitle').focus(), 50);
+  // Find existing conversation or create a new one
+  let convo = state.convos.find(c => c.userId === userId);
+  if (!convo) {
+    convo = {
+      id: 'c' + Date.now(),
+      userId: u.id, userName: u.name, userEmail: u.email,
+      status: 'open', unread: false,
+      messages: [],
+    };
+    state.convos.unshift(convo);
+    saveConvos(state.convos);
+  }
+  closeAllDropdowns();
+  // Navigate to Support tab
+  goTo('support');
+  // Open the conversation
+  setTimeout(() => selectConversation(convo.id), 150);
+  toast(`Opening chat with ${u.name}`, 'info');
 }
 
+// Keep closeSendMessageModal for backward compat (no-op)
 function closeSendMessageModal() {
   document.getElementById('sendMessageModal').classList.remove('show');
-  messageTargetId = null;
 }
 
-function sendDirectMessage() {
-  if (!messageTargetId) {
-    toast('No recipient selected', 'error');
-    return;
-  }
-  const title = document.getElementById('sendMessageTitle').value.trim();
-  const body = document.getElementById('sendMessageBody').value.trim();
-  if (!title) {
-    toast('Please enter a message title', 'error');
-    document.getElementById('sendMessageTitle').focus();
-    return;
-  }
-  if (!body) {
-    toast('Please enter the message body', 'error');
-    document.getElementById('sendMessageBody').focus();
-    return;
-  }
-  const target = state.users.find(x => x.id === messageTargetId);
-  if (!target) {
-    toast('Recipient not found', 'error');
-    closeSendMessageModal();
-    return;
-  }
-  // Create notification with channel=USER_ID
-  const notif = {
-    id: 'n' + Date.now(),
-    title, body,
-    channel: 'USER_ID',
-    target: messageTargetId,
-    sentAt: new Date().toISOString(),
-    sentCount: 1,
-  };
-  state.notifs.unshift(notif);
-  saveNotifs(state.notifs);
-  toast(`Message sent to ${target.name}`, 'success');
-  closeSendMessageModal();
-  // Refresh notifications history if currently shown
-  if (document.getElementById('tab-notifications').classList.contains('active')) {
-    renderNotifHistory();
-  }
-}
-
-// Close modal on Escape key
+// Close modals on Escape key
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    if (document.getElementById('sendMessageModal').classList.contains('show')) {
-      closeSendMessageModal();
-    }
     closeAllDropdowns();
     closeImageModal();
   }
@@ -2237,20 +2436,66 @@ document.getElementById('userSearch').addEventListener('input', function() {
 function banUser(id) {
   const u = state.users.find(x => x.id === id);
   if (!u) return;
-  u.status = 'BANNED';
-  saveUsers(state.users);
-  toast(`User ${u.name} has been banned`, 'success');
-  closeAllDropdowns();
-  renderUsers();
+  showConfirmCard({
+    title: 'Ban this user?',
+    message: `${u.name} will be unable to access the platform. The user will receive a notification about this action.`,
+    icon: 'danger',
+    confirmText: 'Ban User',
+    user: u,
+    onConfirm: () => {
+      u.status = 'BANNED';
+      saveUsers(state.users);
+      // Create a notification FOR the user about the ban
+      state.notifs.unshift({
+        id: 'n' + Date.now(),
+        title: 'Your account has been suspended',
+        body: `Hello ${u.name}, your account has been banned by an administrator. Please contact support if you believe this is an error.`,
+        channel: 'USER_ID',
+        target: u.id,
+        sentAt: new Date().toISOString(),
+        sentCount: 1,
+      });
+      saveNotifs(state.notifs);
+      toast(`User ${u.name} has been banned`, 'success');
+      closeAllDropdowns();
+      renderUsers();
+      if (selectedUserId === id && document.getElementById('userDetail').style.display !== 'none') {
+        selectUser(id);
+      }
+    }
+  });
 }
 function unbanUser(id) {
   const u = state.users.find(x => x.id === id);
   if (!u) return;
-  u.status = 'ACTIVE';
-  saveUsers(state.users);
-  toast(`Ban lifted for ${u.name}`, 'success');
-  closeAllDropdowns();
-  renderUsers();
+  showConfirmCard({
+    title: 'Unban this user?',
+    message: `${u.name} will regain full access to the platform. The user will receive a notification about this action.`,
+    icon: 'success',
+    confirmText: 'Unban User',
+    user: u,
+    onConfirm: () => {
+      u.status = 'ACTIVE';
+      saveUsers(state.users);
+      // Create a notification FOR the user about the unban
+      state.notifs.unshift({
+        id: 'n' + Date.now(),
+        title: 'Your account has been restored',
+        body: `Hello ${u.name}, your account is now active. Welcome back!`,
+        channel: 'USER_ID',
+        target: u.id,
+        sentAt: new Date().toISOString(),
+        sentCount: 1,
+      });
+      saveNotifs(state.notifs);
+      toast(`Ban lifted for ${u.name}`, 'success');
+      closeAllDropdowns();
+      renderUsers();
+      if (selectedUserId === id && document.getElementById('userDetail').style.display !== 'none') {
+        selectUser(id);
+      }
+    }
+  });
 }
 function promoteUser(id) {
   const u = state.users.find(x => x.id === id);
@@ -2452,11 +2697,18 @@ function createPromo() {
 function deletePromo(id) {
   const p = state.promos.find(x => x.id === id);
   if (!p) return;
-  if (!confirm(`Delete code ${p.code}?`)) return;
-  state.promos = state.promos.filter(x => x.id !== id);
-  savePromos(state.promos);
-  toast(`Code ${p.code} deleted`, 'info');
-  renderPromos();
+  showConfirmCard({
+    title: 'Delete promo code?',
+    message: `Promo code "${p.code}" will be permanently removed. This action cannot be undone.`,
+    icon: 'danger',
+    confirmText: 'Delete Code',
+    onConfirm: () => {
+      state.promos = state.promos.filter(x => x.id !== id);
+      savePromos(state.promos);
+      toast(`Code ${p.code} deleted`, 'info');
+      renderPromos();
+    }
+  });
 }
 
 function promoCardHTML(p) {
@@ -2532,11 +2784,18 @@ function toggleOffer(id) {
 function deleteOffer(id) {
   const o = state.offers.find(x => x.id === id);
   if (!o) return;
-  if (!confirm(`Delete offer "${o.title}"?`)) return;
-  state.offers = state.offers.filter(x => x.id !== id);
-  saveOffers(state.offers);
-  toast('Offer deleted', 'info');
-  renderOffers();
+  showConfirmCard({
+    title: 'Delete offer?',
+    message: `"${o.title}" will be permanently removed. This action cannot be undone.`,
+    icon: 'danger',
+    confirmText: 'Delete Offer',
+    onConfirm: () => {
+      state.offers = state.offers.filter(x => x.id !== id);
+      saveOffers(state.offers);
+      toast('Offer deleted', 'info');
+      renderOffers();
+    }
+  });
 }
 
 function renderOffers() {
@@ -2599,11 +2858,18 @@ function addPlan() {
 function deletePlan(id) {
   const p = state.plans.find(x => x.id === id);
   if (!p) return;
-  if (!confirm(`Delete plan "${p.name}"?`)) return;
-  state.plans = state.plans.filter(x => x.id !== id);
-  savePlans(state.plans);
-  toast(`Plan ${p.name} deleted`, 'info');
-  renderPlans();
+  showConfirmCard({
+    title: 'Delete plan?',
+    message: `Plan "${p.name}" ($${Number(p.price).toFixed(2)}) will be permanently removed. This action cannot be undone.`,
+    icon: 'danger',
+    confirmText: 'Delete Plan',
+    onConfirm: () => {
+      state.plans = state.plans.filter(x => x.id !== id);
+      savePlans(state.plans);
+      toast(`Plan ${p.name} deleted`, 'info');
+      renderPlans();
+    }
+  });
 }
 
 function renderPlans() {
