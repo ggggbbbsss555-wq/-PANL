@@ -375,7 +375,7 @@
   .badge.admin { color: #fff; background: var(--accent); border-color: var(--accent); }
 
   /* Action icon buttons — horizontal row */
-  .actions { display: inline-flex; gap: .25rem; align-items: center; flex-wrap: nowrap; }
+  .actions { display: inline-flex; gap: .25rem; align-items: center; flex-wrap: nowrap; position: relative; }
   .icon-btn {
     width: 30px; height: 30px;
     display: inline-grid; place-items: center;
@@ -386,6 +386,83 @@
   }
   .icon-btn:disabled { opacity: .35; cursor: not-allowed; }
   .icon-btn .icon { width: 15px; height: 15px; }
+
+  /* Dropdown menu for user actions */
+  .dropdown { position: relative; display: inline-block; }
+  .dropdown-trigger {
+    width: 32px; height: 32px;
+    display: inline-grid; place-items: center;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text-muted);
+    transition: all .12s ease;
+    cursor: pointer;
+  }
+  .dropdown-trigger:hover { color: var(--accent); border-color: var(--accent); }
+  .dropdown-trigger .icon { width: 16px; height: 16px; }
+  .dropdown-trigger.active { color: var(--accent); border-color: var(--accent); }
+
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6px); right: 0;
+    min-width: 200px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    padding: .35rem;
+    z-index: 100;
+    display: none;
+    text-align: left;
+  }
+  .dropdown-menu.open { display: block; animation: dropIn .12s ease; }
+  @keyframes dropIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .dropdown-section { padding: .25rem .65rem; color: var(--text-faint); font-size: .65rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+  .dropdown-item {
+    width: 100%;
+    padding: .5rem .65rem;
+    display: flex; align-items: center; gap: .55rem;
+    border-radius: 6px;
+    color: var(--text);
+    font-size: .82rem; font-weight: 500;
+    transition: background .1s ease;
+    cursor: pointer;
+    text-align: left;
+  }
+  .dropdown-item:hover { background: var(--bg-soft); }
+  .dropdown-item:disabled { opacity: .35; cursor: not-allowed; }
+  .dropdown-item .icon { width: 14px; height: 14px; color: inherit; }
+  .dropdown-item.danger { color: var(--danger); }
+  .dropdown-item.danger:hover { background: rgba(220,38,38,.08); }
+  [data-theme="dark"] .dropdown-item.danger:hover { background: rgba(248,113,113,.12); }
+  .dropdown-item.success { color: var(--success); }
+  .dropdown-item.success:hover { background: rgba(22,163,74,.08); }
+  [data-theme="dark"] .dropdown-item.success:hover { background: rgba(74,222,128,.12); }
+  .dropdown-item.warn { color: var(--warning); }
+  .dropdown-item.warn:hover { background: rgba(217,119,6,.08); }
+  [data-theme="dark"] .dropdown-item.warn:hover { background: rgba(251,191,36,.12); }
+  .dropdown-item.accent { color: var(--accent); }
+  .dropdown-item.accent:hover { background: var(--accent-soft); }
+  .dropdown-item.current { background: var(--bg-soft); }
+  .dropdown-item.current .check { margin-left: auto; color: var(--accent); }
+  .dropdown-divider { height: 1px; background: var(--border); margin: .35rem .65rem; }
+  .dropdown-item .level-dots { margin-left: auto; display: flex; gap: 2px; }
+  .dropdown-item .level-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+  .dropdown-item .level-dot.on { background: currentColor; }
+
+  /* Level badges in table */
+  .badge.level1, .badge.level2, .badge.level3 {
+    color: var(--warning); background: rgba(217,119,6,.08); border-color: var(--warning);
+  }
+  [data-theme="dark"] .badge.level1, [data-theme="dark"] .badge.level2, [data-theme="dark"] .badge.level3 {
+    color: var(--warning); background: rgba(251,191,36,.12); border-color: var(--warning);
+  }
+  .badge .level-dots { display: inline-flex; gap: 1px; align-items: center; margin-left: 2px; }
+  .badge .level-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: .35; }
+  .badge .level-dot.on { opacity: 1; }
+
   .icon-btn-ban { color: var(--danger); background: transparent; border-color: transparent; }
   .icon-btn-ban:hover:not(:disabled) { background: rgba(220,38,38,.12); border-color: rgba(220,38,38,.3); }
   [data-theme="dark"] .icon-btn-ban:hover:not(:disabled) { background: rgba(248,113,113,.15); border-color: rgba(248,113,113,.3); }
@@ -1466,15 +1543,28 @@ function loadData() {
   if (users.length === 0) {
     users = [];
     for (let i = 0; i < 24; i++) {
+      // Level: 0 = normal user, 1/2/3 = promoted levels (3 = max)
+      let level = 0;
+      if (i < 2) level = 3;          // first 2 = Level 3 (max)
+      else if (i < 5) level = 2;    // next 3 = Level 2
+      else if (i < 9) level = 1;     // next 4 = Level 1
+      const promotedAt = level > 0
+        ? new Date(Date.now() - (i + 1) * 86400000).toISOString()
+        : null;
       users.push({
         id: uid(),
         email: `user${i + 1}@dashboard.io`,
         name: SAMPLE_NAMES[i] ?? `User${i + 1}`,
-        role: i < 6 ? 'PREMIUM' : i === 23 ? 'ADMIN' : 'USER',
+        role: i === 23 ? 'ADMIN' : 'USER',
+        level: i === 23 ? 0 : level,
         status: i % 9 === 0 ? 'BANNED' : 'ACTIVE',
         phone: randomPhone(),
         country: COUNTRIES[i % COUNTRIES.length],
         joinedAt: new Date(Date.now() - (i + 1) * 86400000 * Math.floor(1 + Math.random() * 5)).toISOString(),
+        promotedAt,
+        promotionHistory: level > 0 ? [
+          { level, at: promotedAt, note: `Promoted to Level ${level}` }
+        ] : [],
       });
     }
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
@@ -1690,6 +1780,13 @@ const ICONS = {
   attach: '<svg class="icon" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>',
   image:  '<svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
   power:  '<svg class="icon" viewBox="0 0 24 24"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>',
+  gear:   '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.5"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  crown:  '<svg class="icon" viewBox="0 0 24 24"><path d="M2 19h20l-2-9-4 4-4-7-4 7-4-4-2 9zM4 21h16"/></svg>',
+  clock:  '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  chevron:'<svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>',
+  arrowUp:'<svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>',
+  arrowDn:'<svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>',
+  user:   '<svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
 };
 
 /* ============================================================
@@ -1733,10 +1830,16 @@ function formatDateTime(iso) {
   const d = new Date(iso);
   return d.toLocaleString('en-US', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
-function roleBadge(role) {
-  const labels = { PREMIUM: 'Premium', USER: 'User', ADMIN: 'Admin' };
-  const cls = role.toLowerCase();
-  return `<span class="badge ${cls}">${ICONS[cls === 'premium' ? 'star' : cls === 'admin' ? 'shield' : 'users']}<span>${labels[role] || role}</span></span>`;
+function roleBadge(role, level = 0) {
+  if (role === 'ADMIN') {
+    return `<span class="badge admin">${ICONS.shield}<span>Admin</span></span>`;
+  }
+  if (level > 0) {
+    const cls = 'level' + level;
+    const dots = [1, 2, 3].map(n => `<span class="level-dot ${n <= level ? 'on' : ''}"></span>`).join('');
+    return `<span class="badge ${cls}">${ICONS.crown}<span>Level ${level}</span><span class="level-dots">${dots}</span></span>`;
+  }
+  return `<span class="badge user">${ICONS.user}<span>Normal</span></span>`;
 }
 function statusBadge(status) {
   if (status === 'BANNED') return `<span class="badge banned">${ICONS.ban}<span>Banned</span></span>`;
@@ -1817,8 +1920,24 @@ function renderUsers(filteredList) {
 
   body.innerHTML = list.map(u => {
     const isBanned = u.status === 'BANNED';
-    const isPremium = u.role === 'PREMIUM';
     const isAdmin = u.role === 'ADMIN';
+    const level = u.level || 0;
+    // Build dropdown items for level selection
+    const levelItems = [0, 1, 2, 3].map(l => {
+      const isCurrent = level === l;
+      const label = l === 0 ? 'Normal User' : `Level ${l}${l === 3 ? ' (Max)' : ''}`;
+      const dotClass = 'level-dot' + (l > 0 && l === level ? ' on' : '');
+      const dots = l === 0
+        ? ''
+        : `<span class="level-dots">${[1,2,3].map(n => `<span class="level-dot ${n <= l ? 'on' : ''}"></span>`).join('')}</span>`;
+      return `<button class="dropdown-item warn ${isCurrent ? 'current' : ''}" ${isAdmin ? 'disabled' : ''} onclick="setUserLevel('${u.id}', ${l})">
+        ${l === 0 ? ICONS.user : ICONS.crown}
+        <span>${label}</span>
+        ${dots}
+        ${isCurrent ? `<span class="check">${ICONS.check}</span>` : ''}
+      </button>`;
+    }).join('');
+
     return `
       <tr>
         <td>
@@ -1831,22 +1950,85 @@ function renderUsers(filteredList) {
           </div>
         </td>
         <td><span class="id-code">${u.id}</span></td>
-        <td>${roleBadge(u.role)}</td>
+        <td>${roleBadge(u.role, u.level)}</td>
         <td>${statusBadge(u.status)}</td>
         <td>${u.country || '—'}</td>
         <td>${formatDate(u.joinedAt)}</td>
         <td style="text-align:center">
           <div class="actions">
-            <button class="icon-btn icon-btn-ban" ${isBanned || isAdmin ? 'disabled' : ''} onclick="banUser('${u.id}')" title="Ban">${ICONS.ban}</button>
-            <button class="icon-btn icon-btn-unban" ${!isBanned ? 'disabled' : ''} onclick="unbanUser('${u.id}')" title="Unban">${ICONS.unban}</button>
-            <button class="icon-btn icon-btn-promote" ${isPremium || isAdmin ? 'disabled' : ''} onclick="promoteUser('${u.id}')" title="Promote to Premium">${ICONS.promote}</button>
-            <button class="icon-btn icon-btn-demote" ${!isPremium || isAdmin ? 'disabled' : ''} onclick="demoteUser('${u.id}')" title="Demote">${ICONS.demote}</button>
-            <button class="icon-btn icon-btn-view" onclick="selectUser('${u.id}')" title="View details">${ICONS.view}</button>
+            <div class="dropdown">
+              <button class="dropdown-trigger" onclick="toggleUserMenu('${u.id}')" id="menu-${u.id}" title="User settings" ${isAdmin ? 'disabled' : ''}>
+                ${ICONS.gear}
+              </button>
+              <div class="dropdown-menu" id="dropdown-${u.id}">
+                <div class="dropdown-section">Promote</div>
+                ${levelItems}
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-section">Account</div>
+                ${isBanned
+                  ? `<button class="dropdown-item success" onclick="unbanUser('${u.id}'); closeAllDropdowns()">${ICONS.unban}<span>Unban User</span></button>`
+                  : `<button class="dropdown-item danger" ${isAdmin ? 'disabled' : ''} onclick="banUser('${u.id}'); closeAllDropdowns()">${ICONS.ban}<span>Ban User</span></button>`
+                }
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item accent" onclick="selectUser('${u.id}'); closeAllDropdowns()">${ICONS.view}<span>View Details</span></button>
+              </div>
+            </div>
           </div>
         </td>
       </tr>
     `;
   }).join('');
+}
+
+function toggleUserMenu(userId) {
+  const menu = document.getElementById('dropdown-' + userId);
+  const trigger = document.getElementById('menu-' + userId);
+  const isOpen = menu.classList.contains('open');
+  closeAllDropdowns();
+  if (!isOpen) {
+    menu.classList.add('open');
+    trigger.classList.add('active');
+  }
+}
+
+function closeAllDropdowns() {
+  document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+  document.querySelectorAll('.dropdown-trigger.active').forEach(t => t.classList.remove('active'));
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.dropdown')) {
+    closeAllDropdowns();
+  }
+});
+
+function setUserLevel(userId, level) {
+  const u = state.users.find(x => x.id === userId);
+  if (!u) return;
+  const oldLevel = u.level || 0;
+  if (oldLevel === level) { closeAllDropdowns(); return; }
+  u.level = level;
+  if (level === 0) {
+    u.promotedAt = null;
+  } else {
+    u.promotedAt = new Date().toISOString();
+    if (!u.promotionHistory) u.promotionHistory = [];
+    u.promotionHistory.push({
+      level,
+      at: u.promotedAt,
+      note: level > oldLevel ? `Promoted from Level ${oldLevel} to Level ${level}` : `Set to Level ${level}`,
+    });
+  }
+  saveUsers(state.users);
+  const label = level === 0 ? 'Normal user' : `Level ${level}`;
+  toast(`${u.name} is now ${label}`, 'success');
+  closeAllDropdowns();
+  renderUsers();
+  // Update detail view if open
+  if (selectedUserId === userId && document.getElementById('userDetail').style.display !== 'none') {
+    selectUser(userId);
+  }
 }
 
 function searchUsers() {
@@ -1877,6 +2059,7 @@ function banUser(id) {
   u.status = 'BANNED';
   saveUsers(state.users);
   toast(`User ${u.name} has been banned`, 'success');
+  closeAllDropdowns();
   renderUsers();
 }
 function unbanUser(id) {
@@ -1885,23 +2068,19 @@ function unbanUser(id) {
   u.status = 'ACTIVE';
   saveUsers(state.users);
   toast(`Ban lifted for ${u.name}`, 'success');
+  closeAllDropdowns();
   renderUsers();
 }
 function promoteUser(id) {
   const u = state.users.find(x => x.id === id);
   if (!u) return;
-  u.role = 'PREMIUM';
-  saveUsers(state.users);
-  toast(`${u.name} promoted to Premium member`, 'success');
-  renderUsers();
+  if ((u.level || 0) >= 3) { toast(`${u.name} already at max level`, 'info'); return; }
+  setUserLevel(id, (u.level || 0) + 1);
 }
 function demoteUser(id) {
   const u = state.users.find(x => x.id === id);
   if (!u) return;
-  u.role = 'USER';
-  saveUsers(state.users);
-  toast(`Premium removed from ${u.name}`, 'success');
-  renderUsers();
+  setUserLevel(id, 0);
 }
 
 function selectUser(id) {
@@ -1909,15 +2088,41 @@ function selectUser(id) {
   if (!u) return;
   selectedUserId = id;
   document.getElementById('userDetail').style.display = 'block';
+
+  const promotedAtHTML = u.promotedAt
+    ? `<strong>${formatDate(u.promotedAt)} <small style="color:var(--text-faint);font-weight:400">(${formatShortTime(u.promotedAt)} ago)</small></strong>`
+    : '<strong style="color:var(--text-faint)">—</strong>';
+
+  // Promotion history (newest first)
+  const history = (u.promotionHistory || []).slice().reverse();
+  const historyHTML = history.length === 0
+    ? '<div style="color:var(--text-faint);font-size:.8rem">No promotion history</div>'
+    : history.map(h => `
+        <div style="display:flex;gap:.65rem;align-items:flex-start;padding:.5rem 0;border-bottom:1px solid var(--border-soft);">
+          <div class="stat-icon" style="margin-bottom:0;width:24px;height:24px;border-radius:4px;">
+            ${ICONS.crown.replace('class="icon"','class="icon sm"')}
+          </div>
+          <div style="flex:1">
+            <div style="font-size:.82rem;font-weight:600">${h.note}</div>
+            <div style="color:var(--text-faint);font-size:.7rem">${formatDateTime(h.at)}</div>
+          </div>
+        </div>
+      `).join('');
+
   document.getElementById('userInfoGrid').innerHTML = `
     <div class="info-item"><label>ID</label><strong><span class="id-code">${u.id}</span></strong></div>
     <div class="info-item"><label>Full Name</label><strong>${u.name}</strong></div>
     <div class="info-item"><label>Email</label><strong>${u.email}</strong></div>
     <div class="info-item"><label>Phone</label><strong>${u.phone || '—'}</strong></div>
     <div class="info-item"><label>Country</label><strong>${u.country || '—'}</strong></div>
-    <div class="info-item"><label>Role</label><strong>${roleBadge(u.role)}</strong></div>
+    <div class="info-item"><label>Role</label><strong>${roleBadge(u.role, u.level)}</strong></div>
     <div class="info-item"><label>Status</label><strong>${statusBadge(u.status)}</strong></div>
     <div class="info-item"><label>Joined</label><strong>${formatDate(u.joinedAt)}</strong></div>
+    <div class="info-item"><label>Last Promotion</label>${promotedAtHTML}</div>
+    <div class="info-item" style="grid-column:1/-1">
+      <label>Promotion History</label>
+      <div style="margin-top:.35rem">${historyHTML}</div>
+    </div>
   `;
   document.getElementById('userDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
