@@ -960,24 +960,38 @@
   }
   .btn-confirm-warning:hover { background: #b45309; }
 
-  /* Password visibility toggle */
+  /* Password visibility toggle — professional inline side button */
   .password-field { position: relative; }
+  .password-field input {
+    padding-right: 2.75rem;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .password-field input:focus { border-color: var(--accent); }
   .password-toggle {
     position: absolute;
-    top: 50%; left: .75rem;
+    top: 50%;
+    right: .5rem;
     transform: translateY(-50%);
-    width: 32px; height: 32px;
+    width: 36px; height: 36px;
     background: transparent;
     border: none;
     color: var(--text-faint);
     display: grid; place-items: center;
     cursor: pointer;
-    transition: color .12s ease;
+    border-radius: 6px;
+    transition: color .15s ease, background .15s ease;
     z-index: 2;
   }
-  .password-toggle:hover { color: var(--accent); }
-  .password-toggle .icon { width: 18px; height: 18px; }
-  .password-field input { padding-left: 2.5rem; }
+  .password-toggle:hover {
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .password-toggle:active { transform: translateY(-50%) scale(.94); }
+  .password-toggle .icon {
+    width: 18px; height: 18px;
+    transition: transform .2s ease;
+  }
+  .password-toggle:hover .icon { transform: scale(1.08); }
 
   /* ===================== SEND MESSAGE MODAL ===================== */
   .modal-overlay {
