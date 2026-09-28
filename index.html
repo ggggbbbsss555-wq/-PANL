@@ -1042,16 +1042,189 @@
   .theme-btn-mobile { display: none; }
 
   /* Responsive */
+  /* Mobile top header */
+  .mobile-header {
+    display: none;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    z-index: 50;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .mobile-header-brand {
+    display: flex; align-items: center; gap: .55rem;
+    font-weight: 700; font-size: .95rem;
+  }
+  .mobile-header-brand .brand-logo {
+    width: 30px; height: 30px; border-radius: 7px; font-size: .82rem;
+  }
+  .mobile-theme-btn {
+    width: 38px; height: 38px; border-radius: 8px;
+    background: var(--bg-soft); border: 1px solid var(--border);
+    color: var(--text);
+    display: grid; place-items: center;
+    transition: all .12s ease; cursor: pointer;
+  }
+  .mobile-theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Mobile bottom navigation */
+  .mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--bg-elev);
+    border-top: 1px solid var(--border);
+    padding: .35rem .25rem;
+    z-index: 100;
+    justify-content: space-around;
+    align-items: stretch;
+    box-shadow: 0 -4px 20px rgba(0,0,0,.04);
+    padding-bottom: calc(.35rem + env(safe-area-inset-bottom, 0px));
+  }
+  .mobile-nav-item {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: .2rem;
+    padding: .4rem .15rem;
+    color: var(--text-muted);
+    border-radius: 8px;
+    min-height: 48px;
+    transition: color .12s ease;
+    cursor: pointer;
+  }
+  .mobile-nav-item .icon { width: 22px; height: 22px; }
+  .mobile-nav-item .label {
+    font-size: .62rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+  }
+  .mobile-nav-item.active { color: var(--accent); }
+  .mobile-nav-item.active .icon { stroke-width: 2.2; }
+
   @media (max-width: 900px) {
     .app { grid-template-columns: 1fr; }
-    .sidebar { position: relative; height: auto; flex-direction: row; flex-wrap: wrap; padding: 1rem; }
-    .brand { padding-bottom: 0; margin-bottom: 0; border-bottom: none; }
-    .nav { flex-direction: row; flex-wrap: wrap; flex: 1; }
-    .nav-item { font-size: .78rem; padding: .5rem .75rem; }
-    .sidebar-footer, .theme-toggle { display: none; }
-    .main { padding: 1.25rem; max-height: none; }
-    .search-bar { min-width: 200px; }
-    .theme-btn-mobile { display: inline-flex; }
+    .sidebar { display: none; }
+    .mobile-header { display: flex; }
+    .mobile-nav { display: flex; }
+    .main {
+      padding: 1rem;
+      padding-bottom: 90px;
+      max-height: none;
+      overflow-y: visible;
+    }
+    .page-header { margin-bottom: 1rem; }
+    .page-header-text h1 { font-size: 1.25rem; }
+    .page-header-text p { font-size: .8rem; }
+
+    /* Stats: 2 columns on mobile */
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: .5rem; margin-bottom: 1rem; }
+    .stat-card { padding: .75rem; }
+    .stat-icon { width: 26px; height: 26px; margin-bottom: .45rem; }
+    .stat-icon .icon { width: 15px; height: 15px; }
+    .stat-label { font-size: .62rem; }
+    .stat-value { font-size: 1.1rem; }
+    .stat-meta { font-size: .6rem; }
+
+    /* Panels */
+    .panel { padding: 1rem; margin-bottom: 1rem; }
+    .panel-header { flex-direction: column; align-items: flex-start; gap: .65rem; }
+    .panel-header h2 { font-size: .95rem; }
+    .panel-header p { font-size: .78rem; }
+
+    /* Search bar full width */
+    .search-bar { min-width: 100%; width: 100%; }
+
+    /* Tables: scroll horizontally with touch */
+    .table-wrap { max-height: none; -webkit-overflow-scrolling: touch; }
+    table { min-width: 700px; }
+
+    /* Forms: single column */
+    .form-grid { grid-template-columns: 1fr; gap: .65rem; }
+    .field input, .field select, .field textarea { font-size: 16px; } /* prevent iOS zoom */
+
+    /* Dropdown menu becomes bottom sheet */
+    .dropdown-menu {
+      position: fixed !important;
+      bottom: 70px;
+      left: .75rem;
+      right: .75rem;
+      top: auto !important;
+      min-width: 0 !important;
+      width: auto !important;
+      max-height: 70vh;
+      overflow-y: auto;
+      box-shadow: 0 -4px 24px rgba(0,0,0,.18);
+      border-radius: 12px;
+    }
+
+    /* Chat layout: stacked */
+    .chat-layout {
+      grid-template-columns: 1fr;
+      height: auto;
+      gap: .65rem;
+    }
+    .conversations-panel { max-height: 220px; }
+    .chat-view-wrap { min-height: 500px; height: 70vh; }
+    .chat-messages { padding: .85rem; }
+    .message { max-width: 85%; }
+    .chat-input { padding: .55rem .65rem; }
+    .chat-input textarea { font-size: 16px; }
+
+    /* Login card */
+    .login-overlay { padding: 1rem; }
+    .login-card { padding: 1.5rem 1.25rem; }
+    .login-title { font-size: 1.2rem; }
+    .login-form input { font-size: 16px; }
+
+    /* Modals */
+    .modal-card, .confirm-card { padding: 1.5rem 1.25rem; max-width: calc(100vw - 2rem); }
+    .modal-icon, .confirm-icon { width: 48px; height: 48px; }
+    .modal-title, .confirm-title { font-size: 1.05rem; }
+    .confirm-actions { flex-direction: column; }
+    .confirm-actions button { width: 100%; }
+
+    /* Promo & plan grids */
+    .promo-grid, .plans-grid { grid-template-columns: 1fr; }
+
+    /* Subsection tabs scroll */
+    .subsection-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .subsection-tab { white-space: nowrap; }
+
+    /* Radio cards */
+    .radio-group { flex-direction: column; }
+    .radio-card { min-width: 0; }
+
+    /* Toast full width */
+    .toast-container { top: .5rem; right: .5rem; left: .5rem; }
+    .toast { min-width: 0; width: 100%; font-size: .78rem; padding: .65rem .85rem; }
+
+    /* Image modal */
+    .image-modal { padding: 1rem; }
+    .image-modal img { max-width: 95vw; max-height: 80vh; }
+
+    /* User info grid */
+    .user-info { grid-template-columns: 1fr 1fr; gap: .65rem; padding: .75rem; }
+
+    /* Code preview */
+    .code-preview { font-size: 1.15rem; padding: .85rem 1rem; }
+
+    /* Buttons full width when needed */
+    .btn-primary, .btn-outline { width: 100%; justify-content: center; }
+
+    /* Hide "View Details" in dropdown on mobile (use View button instead) */
+    .icon-btn-view { display: none; }
+  }
+
+  @media (max-width: 480px) {
+    .mobile-nav-item .label { display: none; }
+    .mobile-nav-item .icon { width: 24px; height: 24px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .user-info { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -1086,6 +1259,19 @@
 </div>
 
 <div class="app">
+  <!-- Mobile top header (visible only on phone) -->
+  <header class="mobile-header">
+    <div class="mobile-header-brand">
+      <div class="brand-logo">AD</div>
+      <strong>Admin Panel</strong>
+    </div>
+    <button class="mobile-theme-btn" onclick="toggleTheme()" title="Toggle theme" id="mobileThemeBtn">
+      <svg class="icon" viewBox="0 0 24 24" id="mobileThemeIcon">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </header>
+
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="brand">
@@ -1636,6 +1822,38 @@
       </div>
     </section>
   </main>
+
+  <!-- Mobile bottom navigation (visible only on phone) -->
+  <nav class="mobile-nav" id="mobileNav">
+    <button class="mobile-nav-item active" data-tab="dashboard" onclick="goTo('dashboard')" title="Dashboard">
+      <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+      <span class="label">Home</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="users" onclick="goTo('users')" title="Users">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span class="label">Users</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="notifications" onclick="goTo('notifications')" title="Notifications">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="label">Alerts</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="promo" onclick="goTo('promo')" title="Promo Codes">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12v4h2a2 2 0 0 0 0-4h-2z"/></svg>
+      <span class="label">Promos</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="offers" onclick="goTo('offers')" title="Offers & Plans">
+      <svg class="icon" viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+      <span class="label">Offers</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="support" onclick="goTo('support')" title="Support">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      <span class="label">Chat</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="settings" onclick="goTo('settings')" title="Settings">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="label">Settings</span>
+    </button>
+  </nav>
 </div>
 
 <div class="toast-container" id="toastContainer"></div>
@@ -1723,6 +1941,13 @@ function applyTheme(theme) {
   document.getElementById('themeIcon').innerHTML = isDark
     ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
     : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  // Also update mobile theme icon
+  const mobileIcon = document.getElementById('mobileThemeIcon');
+  if (mobileIcon) {
+    mobileIcon.innerHTML = isDark
+      ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+      : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  }
   localStorage.setItem('ad_theme', theme);
 }
 function toggleTheme() {
@@ -2107,6 +2332,7 @@ document.querySelectorAll('.nav-item').forEach(btn => {
 });
 function goTo(tab) {
   document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.tab-content').forEach(s => s.classList.toggle('active', s.id === 'tab-' + tab));
   if (tab === 'dashboard') renderDashboard();
   if (tab === 'users') renderUsers();
@@ -2115,6 +2341,8 @@ function goTo(tab) {
   if (tab === 'offers') { renderOffers(); renderPlans(); }
   if (tab === 'support') renderConversations();
   if (tab === 'settings') renderSettings();
+  // Scroll to top of main content on mobile
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /* ============================================================
