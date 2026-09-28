@@ -2732,12 +2732,24 @@ function renderUserCards(list) {
 }
 
 function toggleUserMenu(userId) {
-  // Try table dropdown first, then card dropdown (mobile)
-  let menu = document.getElementById('dropdown-' + userId);
-  let trigger = document.getElementById('menu-' + userId);
-  if (!menu) {
+  // Detect which version is actually visible (table on desktop, cards on mobile)
+  const tableTrigger = document.getElementById('menu-' + userId);
+  const cardTrigger = document.getElementById('menu-card-' + userId);
+  let menu, trigger;
+  // Use the visible trigger — check offsetParent (null when display:none ancestor)
+  if (tableTrigger && tableTrigger.offsetParent !== null) {
+    menu = document.getElementById('dropdown-' + userId);
+    trigger = tableTrigger;
+  } else if (cardTrigger && cardTrigger.offsetParent !== null) {
     menu = document.getElementById('dropdown-card-' + userId);
-    trigger = document.getElementById('menu-card-' + userId);
+    trigger = cardTrigger;
+  } else if (cardTrigger) {
+    // Fallback to card version
+    menu = document.getElementById('dropdown-card-' + userId);
+    trigger = cardTrigger;
+  } else if (tableTrigger) {
+    menu = document.getElementById('dropdown-' + userId);
+    trigger = tableTrigger;
   }
   if (!menu || !trigger) return;
   const isOpen = menu.classList.contains('open');
