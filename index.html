@@ -960,6 +960,49 @@
   }
   .btn-confirm-warning:hover { background: #b45309; }
 
+  /* ===================== USERS MOBILE CARDS ===================== */
+  .users-cards { display: none; flex-direction: column; gap: .65rem; }
+  .user-card {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: .9rem;
+    transition: border-color .15s ease;
+  }
+  .user-card:hover { border-color: var(--accent); }
+  .user-card-header {
+    display: flex; align-items: center; gap: .65rem;
+    padding-bottom: .65rem;
+    border-bottom: 1px solid var(--border-soft);
+    margin-bottom: .65rem;
+  }
+  .user-card-header .user-avatar { width: 40px; height: 40px; font-size: .9rem; }
+  .user-card-header-info { flex: 1; min-width: 0; }
+  .user-card-header-info .user-name { font-size: .92rem; }
+  .user-card-header-info .user-email {
+    font-size: .72rem; color: var(--text-muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .user-card-body {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: .5rem .85rem;
+    font-size: .78rem;
+  }
+  .user-card-field { display: flex; flex-direction: column; gap: .15rem; }
+  .user-card-field label {
+    color: var(--text-faint); font-size: .62rem;
+    text-transform: uppercase; letter-spacing: .04em;
+    font-weight: 600;
+  }
+  .user-card-field value {
+    color: var(--text); font-size: .82rem; font-weight: 500;
+    word-break: break-all;
+  }
+  .user-card-field .id-code { font-size: .72rem; }
+  .user-card-field.full { grid-column: 1 / -1; }
+
+  /* ===================== USERS MOBILE CARDS END ===================== */
+
   /* Password visibility toggle — professional inline side button INSIDE the field */
   .password-input-wrap {
     position: relative;
@@ -1188,9 +1231,9 @@
     /* Search bar full width */
     .search-bar { min-width: 100%; width: 100%; }
 
-    /* Tables: scroll horizontally with touch */
-    .table-wrap { max-height: none; -webkit-overflow-scrolling: touch; }
-    table { min-width: 700px; }
+    /* Tables: hide on mobile, use cards instead */
+    .table-wrap { display: none; }
+    .users-cards { display: flex; }
 
     /* Forms: single column */
     .form-grid { grid-template-columns: 1fr; gap: .65rem; }
@@ -1477,6 +1520,9 @@
             <tbody id="usersBody"></tbody>
           </table>
         </div>
+
+        <!-- Mobile cards layout (shown on phone instead of table) -->
+        <div class="users-cards" id="usersCards"></div>
       </div>
     </section>
 
@@ -2602,11 +2648,98 @@ function renderUsers(filteredList) {
       </tr>
     `;
   }).join('');
+
+  // Render mobile cards (same data, card layout)
+  renderUserCards(list);
+}
+
+function renderUserCards(list) {
+  const container = document.getElementById('usersCards');
+  if (list.length === 0) {
+    container.innerHTML = `<div class="empty">${ICONS.users}<div>No matching users</div></div>`;
+    return;
+  }
+  container.innerHTML = list.map(u => {
+    const isBanned = u.status === 'BANNED';
+    const isAdmin = u.role === 'ADMIN';
+    const level = u.level || 0;
+    const levelItems = [0, 1, 2, 3].map(l => {
+      const isCurrent = level === l;
+      const label = l === 0 ? 'Normal User' : `Level ${l}${l === 3 ? ' (Max)' : ''}`;
+      const dots = l === 0
+        ? ''
+        : `<span class="level-dots">${[1,2,3].map(n => `<span class="level-dot ${n <= l ? 'on' : ''}"></span>`).join('')}</span>`;
+      return `<button class="dropdown-item warn ${isCurrent ? 'current' : ''}" ${isAdmin ? 'disabled' : ''} onclick="setUserLevel('${u.id}', ${l})">
+        ${l === 0 ? ICONS.user : ICONS.crown}
+        <span>${label}</span>
+        ${dots}
+        ${isCurrent ? `<span class="check">${ICONS.check}</span>` : ''}
+      </button>`;
+    }).join('');
+
+    return `
+      <div class="user-card">
+        <div class="user-card-header">
+          <div class="user-avatar">${initials(u.name)}</div>
+          <div class="user-card-header-info">
+            <div class="user-name">${u.name}</div>
+            <div class="user-email">${u.email}</div>
+          </div>
+          <div class="dropdown">
+            <button class="dropdown-trigger" onclick="toggleUserMenu('${u.id}')" id="menu-card-${u.id}" title="User settings" ${isAdmin ? 'disabled' : ''}>
+              ${ICONS.gear}
+            </button>
+            <div class="dropdown-menu" id="dropdown-card-${u.id}">
+              <div class="dropdown-section">Promote</div>
+              ${levelItems}
+              <div class="dropdown-divider"></div>
+              <div class="dropdown-section">Account</div>
+              ${isBanned
+                ? `<button class="dropdown-item success" onclick="unbanUser('${u.id}'); closeAllDropdowns()">${ICONS.unban}<span>Unban User</span></button>`
+                : `<button class="dropdown-item danger" ${isAdmin ? 'disabled' : ''} onclick="banUser('${u.id}'); closeAllDropdowns()">${ICONS.ban}<span>Ban User</span></button>`
+              }
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item accent" onclick="openSendMessageModal('${u.id}'); closeAllDropdowns()">${ICONS.message}<span>Send Message</span></button>
+              <button class="dropdown-item" onclick="selectUser('${u.id}'); closeAllDropdowns()">${ICONS.view}<span>View Details</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="user-card-body">
+          <div class="user-card-field">
+            <label>Role</label>
+            <value>${roleBadge(u.role, u.level)}</value>
+          </div>
+          <div class="user-card-field">
+            <label>Status</label>
+            <value>${statusBadge(u.status)}</value>
+          </div>
+          <div class="user-card-field">
+            <label>Country</label>
+            <value>${u.country || '—'}</value>
+          </div>
+          <div class="user-card-field">
+            <label>Joined</label>
+            <value>${formatDate(u.joinedAt)}</value>
+          </div>
+          <div class="user-card-field full">
+            <label>ID</label>
+            <value><span class="id-code">${u.id}</span></value>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function toggleUserMenu(userId) {
-  const menu = document.getElementById('dropdown-' + userId);
-  const trigger = document.getElementById('menu-' + userId);
+  // Try table dropdown first, then card dropdown (mobile)
+  let menu = document.getElementById('dropdown-' + userId);
+  let trigger = document.getElementById('menu-' + userId);
+  if (!menu) {
+    menu = document.getElementById('dropdown-card-' + userId);
+    trigger = document.getElementById('menu-card-' + userId);
+  }
+  if (!menu || !trigger) return;
   const isOpen = menu.classList.contains('open');
   closeAllDropdowns();
   if (!isOpen) {
