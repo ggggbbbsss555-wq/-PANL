@@ -960,6 +960,25 @@
   }
   .btn-confirm-warning:hover { background: #b45309; }
 
+  /* Password visibility toggle */
+  .password-field { position: relative; }
+  .password-toggle {
+    position: absolute;
+    top: 50%; left: .75rem;
+    transform: translateY(-50%);
+    width: 32px; height: 32px;
+    background: transparent;
+    border: none;
+    color: var(--text-faint);
+    display: grid; place-items: center;
+    cursor: pointer;
+    transition: color .12s ease;
+    z-index: 2;
+  }
+  .password-toggle:hover { color: var(--accent); }
+  .password-toggle .icon { width: 18px; height: 18px; }
+  .password-field input { padding-left: 2.5rem; }
+
   /* ===================== SEND MESSAGE MODAL ===================== */
   .modal-overlay {
     position: fixed; inset: 0;
@@ -1252,8 +1271,11 @@
         <label>Email</label>
         <input type="email" id="loginEmail" placeholder="admin@dashboard.io" autocomplete="username" required />
       </div>
-      <div class="field">
+      <div class="field password-field">
         <label>Password</label>
+        <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)" title="Show/Hide password" aria-label="Toggle password visibility">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
         <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required />
       </div>
       <button type="submit" class="btn-primary" id="loginSubmit" style="justify-content:center;width:100%;margin-top:.25rem">
@@ -2208,6 +2230,18 @@ function showLogin() {
 }
 function hideLogin() {
   document.getElementById('loginOverlay').classList.add('hidden');
+}
+
+function togglePassword(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const isHidden = input.type === 'password';
+  input.type = isHidden ? 'text' : 'password';
+  // Eye icon (visible) when hidden, Eye-off icon when shown
+  btn.innerHTML = isHidden
+    ? '<svg class="icon" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+    : '<svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  btn.setAttribute('title', isHidden ? 'Hide password' : 'Show password');
 }
 function doLogin(e) {
   e.preventDefault();
